@@ -15,15 +15,12 @@ export default function Charts({ run }) {
     (max, item) => Math.max(max, item.yearly_balances.length),
     0
   );
-  const chartData = Array.from({ length: maxYears }, (_, index) => {
-    const row = { year: index };
-    series.forEach((item) => {
-      row[seriesKey(item.start_year)] = item.yearly_balances[index] ?? null;
-    });
-    return row;
-  });
-  const range = getBalanceRange(series);
+  const balanceData = buildChartData(series, "yearly_balances", maxYears);
+  const spendingData = buildChartData(series, "yearly_withdrawals", maxYears);
+  const range = getValueRange(series, "yearly_balances");
+  const spendingRange = getValueRange(series, "yearly_withdrawals");
   const ticks = buildTicks(range.min, range.max, 5);
+  const spendingTicks = buildTicks(spendingRange.min, spendingRange.max, 5);
 
   return (
     <div className="charts">
@@ -31,9 +28,13 @@ export default function Charts({ run }) {
         <h2>Portfolio Balance by Year</h2>
         <p className="chart-meta">{formatInputs(inputs)}</p>
         <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={chartData}>
+          <LineChart data={balanceData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#233" />
-            <XAxis dataKey="year" stroke="#9fb" />
+            <XAxis
+              dataKey="year"
+              stroke="#9fb"
+              tickFormatter={(value) => toYearLabel(value, inputs?.start_year)}
+            />
             <YAxis
               stroke="#9fb"
               type="number"
@@ -46,10 +47,44 @@ export default function Charts({ run }) {
             {series.map((item) => (
               <Line
                 key={item.start_year}
-                type="monotone"
+                type="linear"
                 dataKey={seriesKey(item.start_year)}
                 stroke={item.highlight ? "#ffb347" : "rgba(84, 224, 164, 0.3)"}
                 strokeWidth={item.highlight ? 2.5 : 1}
+                dot={false}
+                isAnimationActive={false}
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="chart-card">
+        <h2>Spending by Year</h2>
+        <p className="chart-meta">{formatInputs(inputs)}</p>
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={spendingData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#233" />
+            <XAxis
+              dataKey="year"
+              stroke="#9fb"
+              tickFormatter={(value) => toYearLabel(value, inputs?.start_year)}
+            />
+            <YAxis
+              stroke="#9fb"
+              type="number"
+              domain={[spendingRange.min, spendingRange.max]}
+              tickFormatter={formatCompactCurrency}
+              ticks={spendingTicks}
+              width={90}
+            />
+            {series.map((item) => (
+              <Line
+                key={`spend-${item.start_year}`}
+                type="linear"
+                dataKey={seriesKey(item.start_year)}
+                stroke={item.highlight ? "#ffb347" : "rgba(143, 242, 200, 0.25)"}
+                strokeWidth={item.highlight ? 2 : 1}
                 dot={false}
                 isAnimationActive={false}
               />
@@ -98,11 +133,11 @@ function formatCompactCurrency(value) {
   }).format(value);
 }
 
-function getBalanceRange(series) {
+function getValueRange(series, key) {
   let min = 0;
   let max = 0;
   series.forEach((item) => {
-    item.yearly_balances.forEach((value) => {
+    (item[key] || []).forEach((value) => {
       if (value === null || value === undefined) {
         return;
       }
@@ -117,6 +152,23 @@ function getBalanceRange(series) {
   min = Math.min(min, 0);
   max = Math.max(max, 0);
   return { min, max };
+}
+
+function buildChartData(series, key, length) {
+  return Array.from({ length }, (_, index) => {
+    const row = { year: index };
+    series.forEach((item) => {
+      row[seriesKey(item.start_year)] = item[key]?.[index] ?? null;
+    });
+    return row;
+  });
+}
+
+function toYearLabel(index, startYear) {
+  if (!startYear) {
+    return index;
+  }
+  return startYear + index;
 }
 
 function buildTicks(min, max, count) {

@@ -26,6 +26,7 @@ class PerStartYearResult(BaseModel):
     success: bool
     ending_balance: float
     yearly_balances: List[float]
+    yearly_withdrawals: List[float]
     highlight: bool = False
 
 

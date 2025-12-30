@@ -54,7 +54,7 @@ npm run dev
 
 ## UI
 - Terminal-style prompt flow collects inputs step-by-step.
-- Charts display portfolio balances for each simulation with a zero reference line.
+- Charts display portfolio balances (with a zero reference line) and spending per year.
 - Summary shows total runs, successes, failures, and success rate.
 
 ## Troubleshooting

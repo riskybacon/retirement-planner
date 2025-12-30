@@ -54,6 +54,7 @@ Example response:
       "success": true,
       "ending_balance": 1250000,
       "yearly_balances": [1000000, 980000, 1020000],
+      "yearly_withdrawals": [40000, 41200, 42436],
       "highlight": false
     }
   ],
