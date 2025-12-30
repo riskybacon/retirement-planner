@@ -27,9 +27,14 @@ def summarize_results(results: List[dict]) -> dict:
             "failure_count": 0,
             "success_rate": 0.0,
             "ending_balance_percentiles": {},
+            "portfolio_quantiles": {},
+            "spending_quantiles": {},
         }
     successes = sum(1 for item in results if item["success"])
     ending_balances = [item["ending_balance"] for item in results]
+    total_spend_per_run = [
+        sum(item.get("yearly_withdrawals", [])) for item in results
+    ]
     total_runs = len(results)
     return {
         "total_runs": total_runs,
@@ -40,5 +45,19 @@ def summarize_results(results: List[dict]) -> dict:
             "p10": percentile(ending_balances, 10),
             "p50": percentile(ending_balances, 50),
             "p90": percentile(ending_balances, 90),
+        },
+        "portfolio_quantiles": {
+            "p0": percentile(ending_balances, 0),
+            "p25": percentile(ending_balances, 25),
+            "p50": percentile(ending_balances, 50),
+            "p75": percentile(ending_balances, 75),
+            "p100": percentile(ending_balances, 100),
+        },
+        "spending_quantiles": {
+            "p0": percentile(total_spend_per_run, 0),
+            "p25": percentile(total_spend_per_run, 25),
+            "p50": percentile(total_spend_per_run, 50),
+            "p75": percentile(total_spend_per_run, 75),
+            "p100": percentile(total_spend_per_run, 100),
         },
     }

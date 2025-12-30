@@ -38,6 +38,8 @@ class Summary(BaseModel):
     failure_count: int
     success_rate: float
     ending_balance_percentiles: dict
+    portfolio_quantiles: dict
+    spending_quantiles: dict
 
 
 class SimulationResponse(BaseModel):

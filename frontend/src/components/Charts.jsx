@@ -60,7 +60,7 @@ export default function Charts({ run }) {
       </div>
 
       <div className="chart-card">
-        <h2>Spending by Year</h2>
+        <h2>Withdrawls by Year</h2>
         <p className="chart-meta">{formatInputs(inputs)}</p>
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={spendingData}>
@@ -102,6 +102,8 @@ export default function Charts({ run }) {
         <p>Successes: {results.summary.success_count}</p>
         <p>Failures: {results.summary.failure_count}</p>
         <p>Success rate: {(results.summary.success_rate * 100).toFixed(1)}%</p>
+        <p>Portfolio quantiles: {formatQuantiles(results.summary.portfolio_quantiles)}</p>
+        <p>Total widthdrawl quantiles: {formatQuantiles(results.summary.spending_quantiles)}</p>
         <p>Start year range: {results.series.min_year} - {results.series.max_year}</p>
       </div>
     </div>
@@ -210,4 +212,14 @@ function formatPercent(value) {
     return "--";
   }
   return `${(value * 100).toFixed(1)}%`;
+}
+
+function formatQuantiles(quantiles) {
+  if (!quantiles) {
+    return "--";
+  }
+  const keys = ["p0", "p25", "p50", "p75", "p100"];
+  return keys
+    .map((key) => `${key}:${formatCompactCurrency(quantiles[key])}`)
+    .join(" ");
 }
