@@ -1,0 +1,43 @@
+from typing import List
+
+from pydantic import BaseModel, conint, confloat
+
+
+class SSRecipient(BaseModel):
+    start_year: conint(ge=1900)
+    monthly_amount: confloat(ge=0)
+
+
+class SimulationInput(BaseModel):
+    start_year: conint(ge=1900)
+    retirement_years: conint(gt=0, le=100)
+    portfolio_start: confloat(gt=0)
+    stock_allocation: confloat(ge=0, le=1)
+    bond_allocation: confloat(ge=0, le=1)
+    withdrawal_rate_start: confloat(gt=0, le=1)
+    withdrawal_rate_min: confloat(gt=0, le=1)
+    withdrawal_rate_max: confloat(gt=0, le=1)
+    inflation_rate: confloat(ge=0, le=0.2)
+    ss_recipients: List[SSRecipient] = []
+
+
+class PerStartYearResult(BaseModel):
+    start_year: int
+    success: bool
+    ending_balance: float
+    yearly_balances: List[float]
+    highlight: bool = False
+
+
+class Summary(BaseModel):
+    total_runs: int
+    success_count: int
+    failure_count: int
+    success_rate: float
+    ending_balance_percentiles: dict
+
+
+class SimulationResponse(BaseModel):
+    series: dict
+    results: List[PerStartYearResult]
+    summary: Summary

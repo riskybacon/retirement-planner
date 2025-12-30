@@ -1,0 +1,171 @@
+:root {
+  color-scheme: light;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  --bg: #0b1412;
+  --panel: #111c1a;
+  --accent: #54e0a4;
+  --accent-soft: #8ff2c8;
+  --warning: #ffb347;
+  --text: #e8f3ef;
+  --muted: #9fbfb2;
+  --grid: #23322e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #172824, #0b1412 55%);
+  color: var(--text);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 32px 24px 8px;
+}
+
+.brand {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.brand-mark {
+  font-size: 28px;
+  color: var(--warning);
+  border: 1px solid var(--warning);
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.layout {
+  flex: 1;
+  display: block;
+  padding: 24px;
+}
+
+.terminal {
+  background: var(--panel);
+  border: 1px solid var(--grid);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+  box-shadow: 0 24px 40px rgba(0, 0, 0, 0.35);
+}
+
+.terminal-log {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 8px;
+}
+
+.line {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  animation: fadeIn 0.3s ease;
+}
+
+.line.system {
+  color: var(--accent-soft);
+}
+
+.line.user {
+  color: var(--text);
+}
+
+.prompt {
+  color: var(--warning);
+}
+
+.command {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--grid);
+  padding-top: 12px;
+}
+
+
+.command input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+}
+
+.results {
+  background: transparent;
+}
+
+.charts {
+  display: grid;
+  gap: 20px;
+}
+
+.chart-card {
+  background: var(--panel);
+  border: 1px solid var(--grid);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 24px 40px rgba(0, 0, 0, 0.25);
+}
+
+.chart-card h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.chart-meta {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.recharts-cartesian-axis-tick text {
+  white-space: nowrap;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

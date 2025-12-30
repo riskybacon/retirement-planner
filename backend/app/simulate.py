@@ -1,0 +1,53 @@
+from typing import Dict, Tuple
+
+from .models import SimulationInput
+
+
+def clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(value, high))
+
+
+def simulate_one_start_year(
+    req: SimulationInput,
+    series: Dict[int, Tuple[float, float]],
+    start_year: int,
+) -> dict:
+    portfolio = req.portfolio_start
+    withdrawal_rate = clamp(
+        req.withdrawal_rate_start, req.withdrawal_rate_min, req.withdrawal_rate_max
+    )
+    yearly_balances = [portfolio]
+    failed = portfolio <= 0
+
+    for year_idx in range(req.retirement_years):
+        year = start_year + year_idx
+        stock_return, bond_return = series[year]
+
+        stock_value = portfolio * req.stock_allocation
+        bond_value = portfolio * req.bond_allocation
+
+        stock_value *= 1 + stock_return
+        bond_value *= 1 + bond_return
+        portfolio = stock_value + bond_value
+
+        withdrawal = portfolio * withdrawal_rate
+        withdrawal *= (1 + req.inflation_rate) ** year_idx
+
+        ss_annual = sum(
+            recipient.monthly_amount * 12
+            for recipient in req.ss_recipients
+            if year >= recipient.start_year
+        )
+
+        portfolio = portfolio - withdrawal + ss_annual
+        yearly_balances.append(portfolio)
+        if portfolio <= 0:
+            failed = True
+
+    return {
+        "start_year": start_year,
+        "success": not failed,
+        "ending_balance": portfolio,
+        "yearly_balances": yearly_balances,
+        "highlight": start_year == req.start_year,
+    }
