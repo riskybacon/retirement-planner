@@ -38,6 +38,16 @@ const baseSteps = [
     parse: (value) => toPercent(value),
   },
   {
+    id: "withdrawal_smoothing_up",
+    prompt: "Withdrawal smoothing up %? (0-100, 50 = default)",
+    parse: (value) => toPercent(value),
+  },
+  {
+    id: "withdrawal_smoothing_down",
+    prompt: "Withdrawal smoothing down %? (0-100, 100 = default)",
+    parse: (value) => toPercent(value),
+  },
+  {
     id: "inflation_rate",
     prompt: "Inflation rate %? (fixed)",
     parse: (value) => toPercent(value),
@@ -164,7 +174,7 @@ export default function PromptFlow() {
           pushMessage("system", "Usage: edit <field> <value> [<field> <value> ...]");
           pushMessage(
             "system",
-            "Fields: start, years, portfolio, stock, withdraw, min, max, inflation."
+            "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, inflation."
           );
           return;
         }
@@ -176,7 +186,7 @@ export default function PromptFlow() {
             pushMessage("system", "Usage: edit <field> <value> [<field> <value> ...]");
             pushMessage(
               "system",
-              "Fields: start, years, portfolio, stock, withdraw, min, max, inflation."
+              "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, inflation."
             );
             return;
           }
@@ -185,7 +195,7 @@ export default function PromptFlow() {
             pushMessage("system", "Invalid value.");
             pushMessage(
               "system",
-              "Fields: start, years, portfolio, stock, withdraw, min, max, inflation."
+              "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, inflation."
             );
             return;
           }
@@ -295,6 +305,8 @@ function buildPayload(inputs, recipients) {
     withdrawal_rate_start: inputs.withdrawal_rate_start,
     withdrawal_rate_min: inputs.withdrawal_rate_min,
     withdrawal_rate_max: inputs.withdrawal_rate_max,
+    withdrawal_smoothing_up: inputs.withdrawal_smoothing_up ?? 0.5,
+    withdrawal_smoothing_down: inputs.withdrawal_smoothing_down ?? 1.0,
     inflation_rate: inputs.inflation_rate,
     ss_recipients: recipients
       .filter((recipient) => recipient.start_year && recipient.monthly_amount)
@@ -311,6 +323,8 @@ function parseEditValue(field, value) {
     "withdrawal_rate_start",
     "withdrawal_rate_min",
     "withdrawal_rate_max",
+    "withdrawal_smoothing_up",
+    "withdrawal_smoothing_down",
     "inflation_rate",
   ]);
   const intFields = new Set(["start_year", "retirement_years"]);
@@ -344,6 +358,10 @@ function normalizeField(field) {
     wr: "withdrawal_rate_start",
     min: "withdrawal_rate_min",
     max: "withdrawal_rate_max",
+    smoothup: "withdrawal_smoothing_up",
+    smoothdown: "withdrawal_smoothing_down",
+    smoothingup: "withdrawal_smoothing_up",
+    smoothingdown: "withdrawal_smoothing_down",
     inflation: "inflation_rate",
   };
   return aliases[normalized] || normalized;

@@ -16,6 +16,7 @@ def simulate_one_start_year(
     withdrawal_rate = clamp(
         req.withdrawal_rate_start, req.withdrawal_rate_min, req.withdrawal_rate_max
     )
+    withdrawal_amount = portfolio * withdrawal_rate
     yearly_balances = [portfolio]
     yearly_withdrawals = []
     failed = portfolio <= 0
@@ -31,8 +32,22 @@ def simulate_one_start_year(
         bond_value *= 1 + bond_return
         portfolio = stock_value + bond_value
 
-        withdrawal = portfolio * withdrawal_rate
-        withdrawal *= (1 + req.inflation_rate) ** year_idx
+        if year_idx > 0:
+            withdrawal_amount *= 1 + req.inflation_rate
+        if portfolio > 0:
+            current_rate = withdrawal_amount / portfolio
+            target_rate = clamp(
+                current_rate, req.withdrawal_rate_min, req.withdrawal_rate_max
+            )
+            target_withdrawal = portfolio * target_rate
+            delta = target_withdrawal - withdrawal_amount
+            if delta >= 0:
+                smoothing = req.withdrawal_smoothing_up
+            else:
+                smoothing = req.withdrawal_smoothing_down
+            withdrawal_amount = withdrawal_amount + smoothing * delta
+
+        withdrawal = withdrawal_amount
         yearly_withdrawals.append(withdrawal)
 
         ss_annual = sum(

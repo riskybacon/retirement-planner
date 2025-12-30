@@ -36,6 +36,8 @@ Example request:
   "withdrawal_rate_start": 0.04,
   "withdrawal_rate_min": 0.03,
   "withdrawal_rate_max": 0.06,
+  "withdrawal_smoothing_up": 0.5,
+  "withdrawal_smoothing_down": 1.0,
   "inflation_rate": 0.02,
   "ss_recipients": [
     { "start_year": 2035, "monthly_amount": 2000 },

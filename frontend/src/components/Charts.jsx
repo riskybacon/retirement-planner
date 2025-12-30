@@ -96,6 +96,8 @@ export default function Charts({ run }) {
       <div className="chart-card">
         <h2>Summary</h2>
         <p className="chart-meta">{formatInputs(inputs)}</p>
+        <p>Withdrawal smoothing up: {formatPercent(inputs.withdrawal_smoothing_up)}</p>
+        <p>Withdrawal smoothing down: {formatPercent(inputs.withdrawal_smoothing_down)}</p>
         <p>Simulations: {results.summary.total_runs}</p>
         <p>Successes: {results.summary.success_count}</p>
         <p>Failures: {results.summary.failure_count}</p>
@@ -196,6 +198,8 @@ function formatInputs(inputs) {
     formatCurrency(inputs.portfolio_start),
     `Alloc ${allocation}`,
     `WR ${wr}`,
+    `Smooth Up ${formatPercent(inputs.withdrawal_smoothing_up)}`,
+    `Smooth Down ${formatPercent(inputs.withdrawal_smoothing_down)}`,
     `Infl ${formatPercent(inputs.inflation_rate)}`,
     `SS ${ssCount}`,
   ].join(" • ");

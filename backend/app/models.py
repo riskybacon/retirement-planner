@@ -17,6 +17,8 @@ class SimulationInput(BaseModel):
     withdrawal_rate_start: confloat(gt=0, le=1)
     withdrawal_rate_min: confloat(gt=0, le=1)
     withdrawal_rate_max: confloat(gt=0, le=1)
+    withdrawal_smoothing_up: confloat(ge=0, le=1) = 1.0
+    withdrawal_smoothing_down: confloat(ge=0, le=1) = 1.0
     inflation_rate: confloat(ge=0, le=0.2)
     ss_recipients: List[SSRecipient] = []
 
