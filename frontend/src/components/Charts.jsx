@@ -1,5 +1,8 @@
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
+  LabelList,
   Line,
   LineChart,
   ReferenceLine,
@@ -60,9 +63,9 @@ export default function Charts({ run }) {
       </div>
 
       <div className="chart-card">
-        <h2>Withdrawls by Year</h2>
+        <h2>Withdrawl by Year</h2>
         <p className="chart-meta">{formatInputs(inputs)}</p>
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={300}>
           <LineChart data={spendingData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#233" />
             <XAxis
@@ -94,6 +97,54 @@ export default function Charts({ run }) {
       </div>
 
       <div className="chart-card">
+        <h2>Portfolio Quantiles</h2>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={toQuantileBars(results.summary.portfolio_quantiles)}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#233" />
+            <XAxis dataKey="name" stroke="#9fb" />
+            <YAxis
+              stroke="#9fb"
+              tickFormatter={formatCompactCurrency}
+              width={90}
+            />
+            <Bar dataKey="value" fill="#54e0a4" radius={[6, 6, 0, 0]}>
+              <LabelList
+                dataKey="value"
+                position="insideTop"
+                offset={12}
+                formatter={formatCompactCurrency}
+                fill="#0b1412"
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="chart-card">
+        <h2>Total Withdrawl Quantiles</h2>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={toQuantileBars(results.summary.spending_quantiles)}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#233" />
+            <XAxis dataKey="name" stroke="#9fb" />
+            <YAxis
+              stroke="#9fb"
+              tickFormatter={formatCompactCurrency}
+              width={90}
+            />
+            <Bar dataKey="value" fill="#ffb347" radius={[6, 6, 0, 0]}>
+              <LabelList
+                dataKey="value"
+                position="insideTop"
+                offset={12}
+                formatter={formatCompactCurrency}
+                fill="#0b1412"
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="chart-card">
         <h2>Summary</h2>
         <p className="chart-meta">{formatInputs(inputs)}</p>
         <p>Withdrawal smoothing up: {formatPercent(inputs.withdrawal_smoothing_up)}</p>
@@ -102,10 +153,9 @@ export default function Charts({ run }) {
         <p>Successes: {results.summary.success_count}</p>
         <p>Failures: {results.summary.failure_count}</p>
         <p>Success rate: {(results.summary.success_rate * 100).toFixed(1)}%</p>
-        <p>Portfolio quantiles: {formatQuantiles(results.summary.portfolio_quantiles)}</p>
-        <p>Total widthdrawl quantiles: {formatQuantiles(results.summary.spending_quantiles)}</p>
         <p>Start year range: {results.series.min_year} - {results.series.max_year}</p>
       </div>
+
     </div>
   );
 }
@@ -214,12 +264,13 @@ function formatPercent(value) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-function formatQuantiles(quantiles) {
+function toQuantileBars(quantiles) {
   if (!quantiles) {
-    return "--";
+    return [];
   }
   const keys = ["p0", "p25", "p50", "p75", "p100"];
-  return keys
-    .map((key) => `${key}:${formatCompactCurrency(quantiles[key])}`)
-    .join(" ");
+  return keys.map((key) => ({
+    name: key,
+    value: quantiles[key] ?? 0,
+  }));
 }
