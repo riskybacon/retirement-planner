@@ -97,7 +97,7 @@ export default function Charts({ run }) {
       </div>
 
       <div className="chart-card">
-        <h2>Portfolio Quantiles</h2>
+        <h2>Ending Portfolio Value Quantiles</h2>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={toQuantileBars(results.summary.portfolio_quantiles)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#233" />
