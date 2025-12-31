@@ -38,6 +38,7 @@ Example request:
   "withdrawal_rate_max": 0.06,
   "withdrawal_smoothing_up": 0.5,
   "withdrawal_smoothing_down": 1.0,
+  "management_fee": 0.01,
   "inflation_rate": 0.02,
   "ss_recipients": [
     { "start_year": 2035, "monthly_amount": 2000 },
@@ -57,6 +58,7 @@ Example response:
       "ending_balance": 1250000,
       "yearly_balances": [1000000, 980000, 1020000],
       "yearly_withdrawals": [40000, 41200, 42436],
+      "yearly_fees": [10000, 9200, 9800],
       "highlight": false
     }
   ],
@@ -83,7 +85,15 @@ Example response:
       "p50": 1350000,
       "p75": 1650000,
       "p100": 2300000
+    },
+    "fee_quantiles": {
+      "p0": 80000,
+      "p25": 110000,
+      "p50": 135000,
+      "p75": 165000,
+      "p100": 210000
     }
-  }
+  },
+  "quantile_indices": [0, 7, 18, 29, 43, 51]
 }
 ```

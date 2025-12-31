@@ -73,6 +73,25 @@ p {
   box-shadow: 0 24px 40px rgba(0, 0, 0, 0.35);
 }
 
+.terminal-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.terminal-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.terminal-controls input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
 .terminal-log {
   flex: 1;
   overflow-y: auto;

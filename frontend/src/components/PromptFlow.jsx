@@ -48,6 +48,11 @@ const baseSteps = [
     parse: (value) => toPercent(value),
   },
   {
+    id: "management_fee",
+    prompt: "Management fee %? (annual, after returns)",
+    parse: (value) => toPercent(value),
+  },
+  {
     id: "inflation_rate",
     prompt: "Inflation rate %? (fixed)",
     parse: (value) => toPercent(value),
@@ -99,6 +104,7 @@ export default function PromptFlow() {
   const [recipients, setRecipients] = useState([]);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showQuantiles, setShowQuantiles] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -145,7 +151,7 @@ export default function PromptFlow() {
       });
       if (!response.ok) {
         const detail = await response.json();
-        throw new Error(detail.detail || "Simulation failed.");
+        throw new Error(formatApiError(detail));
       }
       const data = await response.json();
       setResults(data);
@@ -174,7 +180,7 @@ export default function PromptFlow() {
           pushMessage("system", "Usage: edit <field> <value> [<field> <value> ...]");
           pushMessage(
             "system",
-            "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, inflation."
+            "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, fee, inflation."
           );
           return;
         }
@@ -186,7 +192,7 @@ export default function PromptFlow() {
             pushMessage("system", "Usage: edit <field> <value> [<field> <value> ...]");
             pushMessage(
               "system",
-              "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, inflation."
+              "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, fee, inflation."
             );
             return;
           }
@@ -195,7 +201,7 @@ export default function PromptFlow() {
             pushMessage("system", "Invalid value.");
             pushMessage(
               "system",
-              "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, inflation."
+              "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, fee, inflation."
             );
             return;
           }
@@ -265,10 +271,26 @@ export default function PromptFlow() {
 
   return (
     <section className="terminal">
+      <div className="terminal-controls">
+        <label>
+          <input
+            type="checkbox"
+            checked={showQuantiles}
+            onChange={(event) => setShowQuantiles(event.target.checked)}
+          />
+          <span>Show quantiles</span>
+        </label>
+      </div>
       <div className="terminal-log">
         {outputs.map((item, index) => {
           if (item.type === "chart") {
-            return <Charts key={`chart-${index}`} run={item.run} />;
+            return (
+              <Charts
+                key={`chart-${index}`}
+                run={item.run}
+                showQuantiles={showQuantiles}
+              />
+            );
           }
           return (
             <div key={`${item.role}-${index}`} className={`line ${item.role}`}>
@@ -307,6 +329,7 @@ function buildPayload(inputs, recipients) {
     withdrawal_rate_max: inputs.withdrawal_rate_max,
     withdrawal_smoothing_up: inputs.withdrawal_smoothing_up ?? 0.5,
     withdrawal_smoothing_down: inputs.withdrawal_smoothing_down ?? 1.0,
+    management_fee: inputs.management_fee ?? 0,
     inflation_rate: inputs.inflation_rate,
     ss_recipients: recipients
       .filter((recipient) => recipient.start_year && recipient.monthly_amount)
@@ -317,6 +340,27 @@ function buildPayload(inputs, recipients) {
   };
 }
 
+function formatApiError(detail) {
+  if (!detail) {
+    return "Simulation failed.";
+  }
+  if (typeof detail === "string") {
+    return detail;
+  }
+  if (typeof detail.detail === "string") {
+    return detail.detail;
+  }
+  if (Array.isArray(detail.detail)) {
+    return detail.detail
+      .map((item) => {
+        const loc = Array.isArray(item.loc) ? item.loc.join(".") : "input";
+        return `${loc}: ${item.msg}`;
+      })
+      .join(" | ");
+  }
+  return JSON.stringify(detail);
+}
+
 function parseEditValue(field, value) {
   const percentFields = new Set([
     "stock_allocation",
@@ -325,6 +369,7 @@ function parseEditValue(field, value) {
     "withdrawal_rate_max",
     "withdrawal_smoothing_up",
     "withdrawal_smoothing_down",
+    "management_fee",
     "inflation_rate",
   ]);
   const intFields = new Set(["start_year", "retirement_years"]);
@@ -362,6 +407,9 @@ function normalizeField(field) {
     smoothdown: "withdrawal_smoothing_down",
     smoothingup: "withdrawal_smoothing_up",
     smoothingdown: "withdrawal_smoothing_down",
+    fee: "management_fee",
+    management: "management_fee",
+    managementfee: "management_fee",
     inflation: "inflation_rate",
   };
   return aliases[normalized] || normalized;

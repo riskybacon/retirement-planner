@@ -19,6 +19,7 @@ def simulate_one_start_year(
     withdrawal_amount = portfolio * withdrawal_rate
     yearly_balances = [portfolio]
     yearly_withdrawals = []
+    yearly_fees = []
     failed = portfolio <= 0
 
     for year_idx in range(req.retirement_years):
@@ -31,6 +32,12 @@ def simulate_one_start_year(
         stock_value *= 1 + stock_return
         bond_value *= 1 + bond_return
         portfolio = stock_value + bond_value
+        if portfolio > 0 and req.management_fee > 0:
+            fee_amount = portfolio * req.management_fee
+            portfolio -= fee_amount
+            yearly_fees.append(fee_amount)
+        else:
+            yearly_fees.append(0.0)
 
         if year_idx > 0:
             withdrawal_amount *= 1 + req.inflation_rate
@@ -67,5 +74,6 @@ def simulate_one_start_year(
         "ending_balance": portfolio,
         "yearly_balances": yearly_balances,
         "yearly_withdrawals": yearly_withdrawals,
+        "yearly_fees": yearly_fees,
         "highlight": start_year == req.start_year,
     }

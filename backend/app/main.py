@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from .data import load_historical_series, series_year_bounds
 from .models import SimulationInput, SimulationResponse
 from .simulate import simulate_one_start_year
-from .summary import summarize_results
+from .summary import summarize_results, compute_quantile_indices
 
 app = FastAPI()
 
@@ -49,4 +49,5 @@ def simulate(req: SimulationInput):
         "series": {"min_year": min_year, "max_year": max_year},
         "results": results,
         "summary": summary,
+        "quantile_indices": compute_quantile_indices(results),
     }

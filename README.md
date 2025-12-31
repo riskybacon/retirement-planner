@@ -46,6 +46,7 @@ npm run dev
 - Annual steps with portfolio rebalanced to the user’s stock/bond allocation.
 - Guardrails: withdrawal rate is clamped between min and max.
 - Optional smoothing: separate up/down rates let withdrawals ease toward guardrails.
+- Management fee: annual percentage applied after returns.
 - Inflation: fixed rate applied to withdrawals.
 - Social Security: annual cashflow added when each recipient reaches their start year.
 

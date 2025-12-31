@@ -19,6 +19,7 @@ class SimulationInput(BaseModel):
     withdrawal_rate_max: confloat(gt=0, le=1)
     withdrawal_smoothing_up: confloat(ge=0, le=1) = 1.0
     withdrawal_smoothing_down: confloat(ge=0, le=1) = 1.0
+    management_fee: confloat(ge=0, le=1.0) = 0.0
     inflation_rate: confloat(ge=0, le=0.2)
     ss_recipients: List[SSRecipient] = []
 
@@ -29,6 +30,7 @@ class PerStartYearResult(BaseModel):
     ending_balance: float
     yearly_balances: List[float]
     yearly_withdrawals: List[float]
+    yearly_fees: List[float]
     highlight: bool = False
 
 
@@ -40,9 +42,11 @@ class Summary(BaseModel):
     ending_balance_percentiles: dict
     portfolio_quantiles: dict
     spending_quantiles: dict
+    fee_quantiles: dict
 
 
 class SimulationResponse(BaseModel):
     series: dict
     results: List[PerStartYearResult]
     summary: Summary
+    quantile_indices: List[int]

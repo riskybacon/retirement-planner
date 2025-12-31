@@ -29,11 +29,15 @@ def summarize_results(results: List[dict]) -> dict:
             "ending_balance_percentiles": {},
             "portfolio_quantiles": {},
             "spending_quantiles": {},
+            "fee_quantiles": {},
         }
     successes = sum(1 for item in results if item["success"])
     ending_balances = [item["ending_balance"] for item in results]
     total_spend_per_run = [
         sum(item.get("yearly_withdrawals", [])) for item in results
+    ]
+    total_fees_per_run = [
+        sum(item.get("yearly_fees", [])) for item in results
     ]
     total_runs = len(results)
     return {
@@ -60,4 +64,35 @@ def summarize_results(results: List[dict]) -> dict:
             "p75": percentile(total_spend_per_run, 75),
             "p100": percentile(total_spend_per_run, 100),
         },
+        "fee_quantiles": {
+            "p0": percentile(total_fees_per_run, 0),
+            "p25": percentile(total_fees_per_run, 25),
+            "p50": percentile(total_fees_per_run, 50),
+            "p75": percentile(total_fees_per_run, 75),
+            "p100": percentile(total_fees_per_run, 100),
+        },
     }
+
+
+def compute_quantile_indices(results: List[dict]) -> list[int]:
+    if not results:
+        return []
+
+    def total_withdrawals(item: dict) -> float:
+        return sum(item.get("yearly_withdrawals", []))
+
+    def rank_indices(values: list[tuple[int, float]]) -> list[int]:
+        values = sorted(values, key=lambda item: (item[1], item[0]))
+        last = len(values) - 1
+        quantiles = [0, 0.25, 0.5, 0.75, 1.0]
+        indices = []
+        for q in quantiles:
+            rank = round(q * last)
+            indices.append(values[rank][0])
+        return indices
+
+    portfolio = [(idx, item["ending_balance"]) for idx, item in enumerate(results)]
+    withdrawl = [(idx, total_withdrawals(item)) for idx, item in enumerate(results)]
+
+    combined = rank_indices(portfolio) + rank_indices(withdrawl)
+    return sorted(set(combined))

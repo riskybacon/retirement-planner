@@ -11,13 +11,12 @@ import {
   YAxis,
 } from "recharts";
 
-export default function Charts({ run }) {
+export default function Charts({ run, showQuantiles }) {
   const { results, inputs } = run;
-  const series = results.results;
-  const maxYears = series.reduce(
-    (max, item) => Math.max(max, item.yearly_balances.length),
-    0
-  );
+  const series = filterSeries(results, showQuantiles);
+  const maxYears = series.length
+    ? series.reduce((max, item) => Math.max(max, item.yearly_balances.length), 0)
+    : 0;
   const balanceData = buildChartData(series, "yearly_balances", maxYears);
   const spendingData = buildChartData(series, "yearly_withdrawals", maxYears);
   const range = getValueRange(series, "yearly_balances");
@@ -145,6 +144,30 @@ export default function Charts({ run }) {
       </div>
 
       <div className="chart-card">
+        <h2>Total Fee Quantiles</h2>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={toQuantileBars(results.summary.fee_quantiles)}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#233" />
+            <XAxis dataKey="name" stroke="#9fb" />
+            <YAxis
+              stroke="#9fb"
+              tickFormatter={formatCompactCurrency}
+              width={90}
+            />
+            <Bar dataKey="value" fill="#7cc6ff" radius={[6, 6, 0, 0]}>
+              <LabelList
+                dataKey="value"
+                position="insideTop"
+                offset={12}
+                formatter={formatCompactCurrency}
+                fill="#0b1412"
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="chart-card">
         <h2>Summary</h2>
         <p className="chart-meta">{formatInputs(inputs)}</p>
         <p>Withdrawal smoothing up: {formatPercent(inputs.withdrawal_smoothing_up)}</p>
@@ -252,6 +275,7 @@ function formatInputs(inputs) {
     `WR ${wr}`,
     `Smooth Up ${formatPercent(inputs.withdrawal_smoothing_up)}`,
     `Smooth Down ${formatPercent(inputs.withdrawal_smoothing_down)}`,
+    `Fee ${formatPercent(inputs.management_fee)}`,
     `Infl ${formatPercent(inputs.inflation_rate)}`,
     `SS ${ssCount}`,
   ].join(" • ");
@@ -273,4 +297,14 @@ function toQuantileBars(quantiles) {
     name: key,
     value: quantiles[key] ?? 0,
   }));
+}
+
+function filterSeries(results, showQuantiles) {
+  const series = results.results;
+  if (!showQuantiles) {
+    return series;
+  }
+  const indices = results.quantile_indices || [];
+  const indexSet = new Set(indices);
+  return series.filter((_, index) => indexSet.has(index));
 }
