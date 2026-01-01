@@ -42,6 +42,7 @@ pip install -r backend/requirements-dev.txt
 ruff format backend/app backend/scripts
 ruff check backend/app backend/scripts
 mypy backend/app backend/scripts
+pytest backend/tests
 ```
 
 ## Data Assumptions
