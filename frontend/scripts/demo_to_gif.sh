@@ -12,10 +12,17 @@ if [[ -z "$video_path" ]]; then
 fi
 
 output_gif="../docs/demo.gif"
+palette_path="/tmp/retirement-planner-palette.png"
 
-ffmpeg -y -i "$video_path" -vf "fps=12,scale=1200:-1:flags=lanczos" -c:v gif "$output_gif"
+ffmpeg -y -i "$video_path" \
+  -vf "fps=12,scale=1200:-1:flags=lanczos,palettegen" \
+  "$palette_path"
 
-rm -f "$video_path"
+ffmpeg -y -i "$video_path" -i "$palette_path" \
+  -lavfi "fps=12,scale=1200:-1:flags=lanczos,paletteuse" \
+  "$output_gif"
+
+rm -f "$video_path" "$palette_path"
 
 if [[ -d "$output_dir" ]]; then
   rmdir "$output_dir" 2>/dev/null || true
