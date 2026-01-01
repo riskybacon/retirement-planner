@@ -1,9 +1,11 @@
 import io
 import os
 from pathlib import Path
+from typing import Iterable
 from urllib.request import urlopen
 
 import pandas as pd
+from pandas._libs.tslibs.nattype import NaTType
 
 SHILLER_URL = "https://www.econ.yale.edu/~shiller/data/ie_data.xls"
 LOCAL_DEFAULT = Path(__file__).resolve().parents[1] / "data" / "ie_data.xls"
@@ -30,7 +32,7 @@ def normalize_columns(frame: pd.DataFrame) -> pd.DataFrame:
     return frame
 
 
-def find_column(frame: pd.DataFrame, candidates) -> str:
+def find_column(frame: pd.DataFrame, candidates: Iterable[str]) -> str:
     for candidate in candidates:
         if candidate in frame.columns:
             return candidate
@@ -41,7 +43,7 @@ def parse_date_column(series: pd.Series) -> pd.Series:
     if pd.api.types.is_datetime64_any_dtype(series):
         return series
 
-    def to_datetime(value):
+    def to_datetime(value: object) -> pd.Timestamp | NaTType:
         if pd.isna(value):
             return pd.NaT
         if isinstance(value, str) and value.strip():
@@ -49,7 +51,10 @@ def parse_date_column(series: pd.Series) -> pd.Series:
                 return pd.to_datetime(value)
             except ValueError:
                 pass
-        numeric = float(value)
+        if isinstance(value, (int, float)):
+            numeric = float(value)
+        else:
+            numeric = float(str(value))
         year = int(numeric)
         month = int(round((numeric - year) * 100))
         if month < 1 or month > 12:
@@ -84,7 +89,7 @@ def build_annual_returns(frame: pd.DataFrame) -> pd.DataFrame:
     return annual
 
 
-def main():
+def main() -> None:
     local_path = Path(os.environ.get("SHILLER_XLS_PATH", str(LOCAL_DEFAULT)))
     data = normalize_columns(fetch_shiller_data(local_path))
     if os.environ.get("SHILLER_SHOW_COLUMNS") == "1":

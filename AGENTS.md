@@ -12,7 +12,9 @@
 - No build or test commands are defined yet. If you add them, document the exact commands and expected outputs here.
 
 ## Coding Style & Naming Conventions
-- No formatter or linter is configured yet. Keep style consistent with any existing files you touch.
+- Backend formatting and linting: use `ruff format backend/app backend/scripts` and `ruff check backend/app backend/scripts`.
+- Type checking: run `mypy backend/app backend/scripts`.
+- For any backend changes, ensure these checks pass or note why they were not run.
 - Use clear, descriptive names for files and directories (for example `src/retirement_planner.js`).
 - Prefer small, focused modules and avoid mixing unrelated responsibilities in one file.
 

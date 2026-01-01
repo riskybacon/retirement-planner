@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 
 from .data import load_historical_series, series_year_bounds
-from .models import SimulationInput, SimulationResponse
+from .models import PerStartYearResult, SimulationInput, SimulationResponse
 from .simulate import simulate_one_start_year
 from .summary import compute_quantile_indices, summarize_results
 
@@ -9,7 +9,7 @@ app = FastAPI()
 
 
 @app.get("/api/v1/series/metadata")
-def series_metadata():
+def series_metadata() -> dict[str, int | str]:
     series = load_historical_series()
     min_year, max_year = series_year_bounds(series)
     return {
@@ -21,7 +21,7 @@ def series_metadata():
 
 
 @app.post("/api/v1/simulate", response_model=SimulationResponse)
-def simulate(req: SimulationInput):
+def simulate(req: SimulationInput) -> SimulationResponse:
     if abs((req.stock_allocation + req.bond_allocation) - 1.0) > 0.001:
         raise HTTPException(status_code=400, detail="Allocations must sum to 1.0")
     if not (req.withdrawal_rate_min <= req.withdrawal_rate_start <= req.withdrawal_rate_max):
@@ -45,9 +45,10 @@ def simulate(req: SimulationInput):
         results.append(simulate_one_start_year(req, series, start_year))
 
     summary = summarize_results(results)
-    return {
-        "series": {"min_year": min_year, "max_year": max_year},
-        "results": results,
-        "summary": summary,
-        "quantile_indices": compute_quantile_indices(results),
-    }
+    typed_results = [PerStartYearResult(**item) for item in results]
+    return SimulationResponse(
+        series={"min_year": min_year, "max_year": max_year},
+        results=typed_results,
+        summary=summary,
+        quantile_indices=compute_quantile_indices(results),
+    )

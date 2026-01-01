@@ -6,7 +6,7 @@ DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "historical.csv"
 
 
 @lru_cache(maxsize=1)
-def load_historical_series():
+def load_historical_series() -> dict[int, tuple[float, float]]:
     if not DATA_PATH.exists():
         raise FileNotFoundError(
             f"Missing historical data at {DATA_PATH}. Run scripts/fetch_fred.py first."
@@ -27,6 +27,6 @@ def load_historical_series():
     return series
 
 
-def series_year_bounds(series):
+def series_year_bounds(series: dict[int, tuple[float, float]]) -> tuple[int, int]:
     years = sorted(series.keys())
     return years[0], years[-1]
