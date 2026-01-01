@@ -1,5 +1,7 @@
 # Retirement Planner
 
+![Demo](docs/demo.gif)
+
 A local, terminal-style web app for running historical retirement simulations with guardrail withdrawals and asset allocation inputs. The backend is FastAPI, the frontend is React + Recharts, and all data stays on your machine.
 
 Do not use this app to plan your retirement. It probably generates incorrect results. This project exists because I:
@@ -47,8 +49,6 @@ ffmpeg -i frontend/recordings/*.webm -vf "fps=12,scale=1200:-1:flags=lanczos" -c
 cd frontend
 npm run demo:gif
 ```
-
-![Demo](docs/demo.gif)
 
 ## Setup
 1) Create and activate the environment (from `INSTALL.md`):
