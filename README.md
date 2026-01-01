@@ -25,6 +25,9 @@ I like the terminal style interface and may use this in some future projects.
 - `backend/data/`: generated historical returns (`historical.csv`).
 - `frontend/`: React UI with terminal-style prompt flow and charts.
 
+## License
+Apache-2.0
+
 ## Setup
 1) Create and activate the environment (from `INSTALL.md`):
 ```text
