@@ -33,12 +33,8 @@ def summarize_results(results: List[dict]) -> dict:
         }
     successes = sum(1 for item in results if item["success"])
     ending_balances = [item["ending_balance"] for item in results]
-    total_spend_per_run = [
-        sum(item.get("yearly_withdrawals", [])) for item in results
-    ]
-    total_fees_per_run = [
-        sum(item.get("yearly_fees", [])) for item in results
-    ]
+    total_spend_per_run = [sum(item.get("yearly_withdrawals", [])) for item in results]
+    total_fees_per_run = [sum(item.get("yearly_fees", [])) for item in results]
     total_runs = len(results)
     return {
         "total_runs": total_runs,

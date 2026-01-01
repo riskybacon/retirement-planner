@@ -174,8 +174,10 @@ export default function PromptFlow() {
     pushMessage("user", text);
 
     if (results) {
-      if (text.startsWith("edit ")) {
-        const tokens = text.split(/\s+/).slice(1);
+      const parts = text.split(/\s+/);
+      const command = parts[0]?.toLowerCase();
+      if (command === "edit") {
+        const tokens = parts.slice(1);
         if (tokens.length < 2 || tokens.length % 2 !== 0) {
           pushMessage("system", "Usage: edit <field> <value> [<field> <value> ...]");
           pushMessage(

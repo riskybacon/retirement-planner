@@ -36,6 +36,14 @@ npm install
 npm run dev
 ```
 
+## Linting and Type Checking (Backend)
+```text
+pip install -r backend/requirements-dev.txt
+ruff format backend/app backend/scripts
+ruff check backend/app backend/scripts
+mypy backend/app backend/scripts
+```
+
 ## Data Assumptions
 - Stocks use the Shiller dataset price series (price index; not total return).
 - Bonds use the Shiller dataset long-rate series as a proxy return via annual average yield.

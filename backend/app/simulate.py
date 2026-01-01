@@ -43,9 +43,7 @@ def simulate_one_start_year(
             withdrawal_amount *= 1 + req.inflation_rate
         if portfolio > 0:
             current_rate = withdrawal_amount / portfolio
-            target_rate = clamp(
-                current_rate, req.withdrawal_rate_min, req.withdrawal_rate_max
-            )
+            target_rate = clamp(current_rate, req.withdrawal_rate_min, req.withdrawal_rate_max)
             target_withdrawal = portfolio * target_rate
             delta = target_withdrawal - withdrawal_amount
             if delta >= 0:
