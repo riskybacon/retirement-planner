@@ -18,7 +18,7 @@
 
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #172824, #0b1412 55%);
+  background: #0b1412;
   color: var(--text);
 }
 

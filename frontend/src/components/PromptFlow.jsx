@@ -19,43 +19,43 @@ const baseSteps = [
   },
   {
     id: "stock_allocation",
-    prompt: "Stock allocation %? (e.g., 60 or 0.6)",
-    parse: (value) => toPercent(value),
+    prompt: "Stock allocation %? (e.g., 60)",
+    parse: (value) => percentToFraction(value),
   },
   {
     id: "withdrawal_rate_start",
     prompt: "Starting withdrawal rate %? (e.g., 4)",
-    parse: (value) => toPercent(value),
+    parse: (value) => percentToFraction(value),
   },
   {
     id: "withdrawal_rate_min",
     prompt: "Minimum withdrawal rate %?",
-    parse: (value) => toPercent(value),
+    parse: (value) => percentToFraction(value),
   },
   {
     id: "withdrawal_rate_max",
     prompt: "Maximum withdrawal rate %?",
-    parse: (value) => toPercent(value),
+    parse: (value) => percentToFraction(value),
   },
   {
     id: "withdrawal_smoothing_up",
     prompt: "Withdrawal smoothing up %? (0-100, 50 = default)",
-    parse: (value) => toPercent(value),
+    parse: (value) => percentToFraction(value),
   },
   {
     id: "withdrawal_smoothing_down",
     prompt: "Withdrawal smoothing down %? (0-100, 100 = default)",
-    parse: (value) => toPercent(value),
+    parse: (value) => percentToFraction(value),
   },
   {
     id: "management_fee",
     prompt: "Management fee %? (annual, after returns)",
-    parse: (value) => toPercentAlways(value),
+    parse: (value) => percentToFraction(value),
   },
   {
     id: "inflation_rate",
     prompt: "Inflation rate %? (fixed)",
-    parse: (value) => toPercent(value),
+    parse: (value) => percentToFraction(value),
   },
   {
     id: "ss_recipient_count",
@@ -64,15 +64,7 @@ const baseSteps = [
   },
 ];
 
-function toPercent(value) {
-  const parsed = parseFloat(value);
-  if (Number.isNaN(parsed)) {
-    return NaN;
-  }
-  return parsed > 1 ? parsed / 100 : parsed;
-}
-
-function toPercentAlways(value) {
+function percentToFraction(value) {
   const parsed = parseFloat(value);
   if (Number.isNaN(parsed)) {
     return NaN;
@@ -182,6 +174,11 @@ function createRecipientSteps(count) {
 export default function PromptFlow() {
   const [outputs, setOutputs] = useState([
     { type: "message", role: "system", text: "Retirement simulator ready." },
+    {
+      type: "message",
+      role: "system",
+      text: "Enter percentages as whole numbers (e.g., 20 for 20%).",
+    },
     { type: "message", role: "system", text: baseSteps[0].prompt },
   ]);
   const [currentStep, setCurrentStep] = useState(0);
@@ -470,10 +467,7 @@ function parseEditValue(field, value) {
   const intFields = new Set(["start_year", "retirement_years"]);
 
   if (percentFields.has(field)) {
-    if (field === "management_fee") {
-      return toPercentAlways(value);
-    }
-    return toPercent(value);
+    return percentToFraction(value);
   }
   if (intFields.has(field)) {
     return parseInt(value, 10);
