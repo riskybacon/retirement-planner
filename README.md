@@ -31,26 +31,6 @@ I like the terminal style interface and may use this in some future projects.
 ## License
 Apache-2.0
 
-## Demo Capture
-1) Install Playwright and run the scripted demo (records a `.webm` video in `frontend/recordings`):
-```text
-cd frontend
-npm install -D playwright
-npx playwright install chromium
-npm run demo
-```
-
-2) Convert the `.webm` to a GIF:
-```text
-ffmpeg -i frontend/recordings/*.webm -vf "fps=12,scale=1200:-1:flags=lanczos" -c:v gif output.gif
-```
-
-3) Or run the demo and conversion in one step:
-```text
-cd frontend
-npm run demo:gif
-```
-
 ## Setup
 1) Create and activate the environment (from `INSTALL.md`):
 ```text
@@ -117,6 +97,12 @@ pytest backend/tests
 - `Simulation failed` in the UI: check backend logs and confirm `uvicorn` is running on port 8000.
 - Vite cannot reach the API: ensure the backend is on `http://localhost:8000` or update the proxy in `frontend/vite.config.js`.
 
-## Screenshots
-- TODO: Add a terminal prompt flow screenshot at `docs/images/prompt-flow.png`.
-- TODO: Add the results charts screenshot at `docs/images/results-charts.png`.
+## Demo Capture
+```text
+cd frontend
+npm install -D playwright
+npx playwright install chromium
+npm run demo:gif
+```
+
+This will save a new `demo.gif` into the `docs` directory.
