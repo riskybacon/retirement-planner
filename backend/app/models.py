@@ -1,6 +1,4 @@
-from typing import List
-
-from pydantic import BaseModel, conint, confloat
+from pydantic import BaseModel, confloat, conint
 
 
 class SSRecipient(BaseModel):
@@ -21,16 +19,16 @@ class SimulationInput(BaseModel):
     withdrawal_smoothing_down: confloat(ge=0, le=1) = 1.0
     management_fee: confloat(ge=0, le=1.0) = 0.0
     inflation_rate: confloat(ge=0, le=0.2)
-    ss_recipients: List[SSRecipient] = []
+    ss_recipients: list[SSRecipient] = []
 
 
 class PerStartYearResult(BaseModel):
     start_year: int
     success: bool
     ending_balance: float
-    yearly_balances: List[float]
-    yearly_withdrawals: List[float]
-    yearly_fees: List[float]
+    yearly_balances: list[float]
+    yearly_withdrawals: list[float]
+    yearly_fees: list[float]
     highlight: bool = False
 
 
@@ -47,6 +45,6 @@ class Summary(BaseModel):
 
 class SimulationResponse(BaseModel):
     series: dict
-    results: List[PerStartYearResult]
+    results: list[PerStartYearResult]
     summary: Summary
-    quantile_indices: List[int]
+    quantile_indices: list[int]

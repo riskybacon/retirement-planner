@@ -1,5 +1,3 @@
-from typing import Dict, Tuple
-
 from .models import SimulationInput
 
 
@@ -9,7 +7,7 @@ def clamp(value: float, low: float, high: float) -> float:
 
 def simulate_one_start_year(
     req: SimulationInput,
-    series: Dict[int, Tuple[float, float]],
+    series: dict[int, tuple[float, float]],
     start_year: int,
 ) -> dict:
     portfolio = req.portfolio_start

@@ -1,7 +1,4 @@
-from typing import List
-
-
-def percentile(values: List[float], p: float) -> float:
+def percentile(values: list[float], p: float) -> float:
     if not values:
         return 0.0
     values = sorted(values)
@@ -19,7 +16,7 @@ def percentile(values: List[float], p: float) -> float:
     return d0 + d1
 
 
-def summarize_results(results: List[dict]) -> dict:
+def summarize_results(results: list[dict]) -> dict:
     if not results:
         return {
             "total_runs": 0,
@@ -70,7 +67,7 @@ def summarize_results(results: List[dict]) -> dict:
     }
 
 
-def compute_quantile_indices(results: List[dict]) -> list[int]:
+def compute_quantile_indices(results: list[dict]) -> list[int]:
     if not results:
         return []
 
