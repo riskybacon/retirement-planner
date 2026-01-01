@@ -3,7 +3,7 @@
 from fastapi import FastAPI, HTTPException
 
 from .data import load_historical_series, series_year_bounds
-from .models import PerStartYearResult, SimulationInput, SimulationResponse
+from .models import PerStartYearResult, SimulationInput, SimulationResponse, SimulationRun
 from .simulate import simulate_one_start_year
 from .summary import compute_quantile_indices, summarize_results
 
@@ -43,7 +43,7 @@ def simulate(req: SimulationInput) -> SimulationResponse:
             detail=f"Retirement horizon exceeds data. Max years available: {max_horizon}.",
         )
 
-    results = []
+    results: list[SimulationRun] = []
     last_start_year = max_year - req.retirement_years + 1
     for start_year in range(min_year, last_start_year + 1):
         results.append(simulate_one_start_year(req, series, start_year))
