@@ -5,6 +5,14 @@ import math
 from backend.app.models import SimulationInput
 from backend.app.simulate import simulate_one_start_year
 
+YEARS = 2
+START_BALANCE = 100.0
+FEE_RATE = 0.1
+FEE_AMOUNT = 10.0
+WITHDRAWAL_RATE = 0.01
+WITHDRAWAL_AMOUNT = 0.9
+NEGATIVE_YEAR_COUNT = 3
+
 
 def test_simulation_tracks_withdrawals_and_fees() -> None:
     """Ensure withdrawals and fees are recorded per year."""
@@ -14,26 +22,26 @@ def test_simulation_tracks_withdrawals_and_fees() -> None:
     }
     req = SimulationInput(
         start_year=2000,
-        retirement_years=2,
-        portfolio_start=100.0,
+        retirement_years=YEARS,
+        portfolio_start=START_BALANCE,
         stock_allocation=1.0,
         bond_allocation=0.0,
-        withdrawal_rate_start=0.01,
-        withdrawal_rate_min=0.01,
-        withdrawal_rate_max=0.01,
+        withdrawal_rate_start=WITHDRAWAL_RATE,
+        withdrawal_rate_min=WITHDRAWAL_RATE,
+        withdrawal_rate_max=WITHDRAWAL_RATE,
         withdrawal_smoothing_up=1.0,
         withdrawal_smoothing_down=1.0,
-        management_fee=0.1,
+        management_fee=FEE_RATE,
         inflation_rate=0.0,
         ss_recipients=[],
     )
 
     result = simulate_one_start_year(req, series, 2000)
 
-    assert len(result["yearly_withdrawals"]) == 2
-    assert len(result["yearly_fees"]) == 2
-    assert result["yearly_fees"][0] == 10.0
-    assert result["yearly_withdrawals"][0] == 0.9
+    assert len(result["yearly_withdrawals"]) == YEARS
+    assert len(result["yearly_fees"]) == YEARS
+    assert result["yearly_fees"][0] == FEE_AMOUNT
+    assert result["yearly_withdrawals"][0] == WITHDRAWAL_AMOUNT
 
 
 def test_simulation_allows_negative_balances() -> None:
@@ -44,7 +52,7 @@ def test_simulation_allows_negative_balances() -> None:
     }
     req = SimulationInput(
         start_year=2000,
-        retirement_years=2,
+        retirement_years=YEARS,
         portfolio_start=1.0,
         stock_allocation=1.0,
         bond_allocation=0.0,
@@ -61,7 +69,7 @@ def test_simulation_allows_negative_balances() -> None:
     result = simulate_one_start_year(req, series, 2000)
 
     assert result["success"] is False
-    assert len(result["yearly_balances"]) == 3
+    assert len(result["yearly_balances"]) == NEGATIVE_YEAR_COUNT
     assert result["yearly_balances"][1] <= 0
 
 

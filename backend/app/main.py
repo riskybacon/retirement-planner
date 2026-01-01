@@ -7,6 +7,8 @@ from .models import PerStartYearResult, SimulationInput, SimulationResponse, Sim
 from .simulate import simulate_one_start_year
 from .summary import compute_quantile_indices, summarize_results
 
+EPSILON = 0.001
+
 app = FastAPI()
 
 
@@ -23,10 +25,10 @@ def series_metadata() -> dict[str, int | str]:
     }
 
 
-@app.post("/api/v1/simulate", response_model=SimulationResponse)
+@app.post("/api/v1/simulate")
 def simulate(req: SimulationInput) -> SimulationResponse:
     """Run rolling historical simulations based on the request payload."""
-    if abs((req.stock_allocation + req.bond_allocation) - 1.0) > 0.001:
+    if abs((req.stock_allocation + req.bond_allocation) - 1.0) > EPSILON:
         raise HTTPException(status_code=400, detail="Allocations must sum to 1.0")
     if not (req.withdrawal_rate_min <= req.withdrawal_rate_start <= req.withdrawal_rate_max):
         raise HTTPException(
@@ -43,10 +45,11 @@ def simulate(req: SimulationInput) -> SimulationResponse:
             detail=f"Retirement horizon exceeds data. Max years available: {max_horizon}.",
         )
 
-    results: list[SimulationRun] = []
     last_start_year = max_year - req.retirement_years + 1
-    for start_year in range(min_year, last_start_year + 1):
-        results.append(simulate_one_start_year(req, series, start_year))
+    results: list[SimulationRun] = [
+        simulate_one_start_year(req, series, start_year)
+        for start_year in range(min_year, last_start_year + 1)
+    ]
 
     summary = summarize_results(results)
     typed_results = [PerStartYearResult(**item) for item in results]

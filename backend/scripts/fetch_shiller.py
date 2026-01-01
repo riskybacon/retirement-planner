@@ -1,6 +1,7 @@
 """Fetch and convert Shiller data into annual returns."""
 
 import io
+import logging
 import os
 from collections.abc import Iterable
 from pathlib import Path
@@ -11,6 +12,10 @@ from pandas._libs.tslibs.nattype import NaTType
 
 SHILLER_URL = "https://www.econ.yale.edu/~shiller/data/ie_data.xls"
 LOCAL_DEFAULT = Path(__file__).resolve().parents[1] / "data" / "ie_data.xls"
+MONTH_MIN = 1
+MONTH_MAX = 12
+
+logger = logging.getLogger(__name__)
 
 
 def fetch_shiller_data(local_path: Path | None = None) -> pd.DataFrame:
@@ -19,14 +24,15 @@ def fetch_shiller_data(local_path: Path | None = None) -> pd.DataFrame:
         return pd.read_excel(local_path, sheet_name="Data", skiprows=7)
 
     try:
-        with urlopen(SHILLER_URL) as response:
+        with urlopen(SHILLER_URL) as response:  # noqa: S310
             data = response.read()
         return pd.read_excel(io.BytesIO(data), sheet_name="Data", skiprows=7)
     except Exception as exc:
-        raise RuntimeError(
+        message = (
             "Unable to download Shiller data. Download ie_data.xls manually and "
             f"place it at {LOCAL_DEFAULT}, or set SHILLER_XLS_PATH to the file."
-        ) from exc
+        )
+        raise RuntimeError(message) from exc
 
 
 def normalize_columns(frame: pd.DataFrame) -> pd.DataFrame:
@@ -41,7 +47,8 @@ def find_column(frame: pd.DataFrame, candidates: Iterable[str]) -> str:
     for candidate in candidates:
         if candidate in frame.columns:
             return candidate
-    raise KeyError(f"Missing column. Tried: {candidates}")
+    message = f"Missing column. Tried: {candidates}"
+    raise KeyError(message)
 
 
 def parse_date_column(series: pd.Series) -> pd.Series:
@@ -57,13 +64,10 @@ def parse_date_column(series: pd.Series) -> pd.Series:
                 return pd.to_datetime(value)
             except ValueError:
                 pass
-        if isinstance(value, (int, float)):
-            numeric = float(value)
-        else:
-            numeric = float(str(value))
+        numeric = float(value) if isinstance(value, (int, float)) else float(str(value))
         year = int(numeric)
-        month = int(round((numeric - year) * 100))
-        if month < 1 or month > 12:
+        month = round((numeric - year) * 100)
+        if month < MONTH_MIN or month > MONTH_MAX:
             return pd.NaT
         return pd.Timestamp(year=year, month=month, day=1)
 
@@ -101,15 +105,20 @@ def main() -> None:
     local_path = Path(os.environ.get("SHILLER_XLS_PATH", str(LOCAL_DEFAULT)))
     data = normalize_columns(fetch_shiller_data(local_path))
     if os.environ.get("SHILLER_SHOW_COLUMNS") == "1":
-        print("Available columns:", ", ".join(data.columns))
+        logger.info("Available columns: %s", ", ".join(data.columns))
         return
     annual = build_annual_returns(data)
 
     output_path = Path(__file__).resolve().parents[1] / "data" / "historical.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     annual.to_csv(output_path)
-    print(f"Wrote {output_path}")
-    print(f"Series coverage: {annual.index.min()} - {annual.index.max()} ({len(annual)} years)")
+    logger.info("Wrote %s", output_path)
+    logger.info(
+        "Series coverage: %s - %s (%s years)",
+        annual.index.min(),
+        annual.index.max(),
+        len(annual),
+    )
 
 
 if __name__ == "__main__":

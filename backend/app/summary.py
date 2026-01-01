@@ -2,6 +2,8 @@
 
 from .models import SimulationRun, Summary
 
+PERCENT_MAX = 100.0
+
 
 def percentile(values: list[float], p: float) -> float:
     """Return the percentile for a list of numeric values."""
@@ -10,7 +12,7 @@ def percentile(values: list[float], p: float) -> float:
     values = sorted(values)
     if p <= 0:
         return values[0]
-    if p >= 100:
+    if p >= PERCENT_MAX:
         return values[-1]
     k = (len(values) - 1) * (p / 100.0)
     f = int(k)

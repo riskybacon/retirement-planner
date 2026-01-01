@@ -1,7 +1,23 @@
 """Tests for summary statistics and quantile indices."""
 
-from backend.app.models import SimulationRun
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from backend.app.summary import compute_quantile_indices, summarize_results
+
+if TYPE_CHECKING:
+    from backend.app.models import SimulationRun
+
+TOTAL_RUNS = 5
+SUCCESS_COUNT = 3
+FAILURE_COUNT = 2
+PORTFOLIO_MIN = 0.0
+PORTFOLIO_MAX = 40.0
+SPENDING_MIN = 10.0
+SPENDING_MAX = 50.0
+FEE_MIN = 1.0
+FEE_MAX = 5.0
 
 
 def test_summary_counts_and_quantiles() -> None:
@@ -56,15 +72,15 @@ def test_summary_counts_and_quantiles() -> None:
 
     summary = summarize_results(results)
 
-    assert summary.total_runs == 5
-    assert summary.success_count == 3
-    assert summary.failure_count == 2
-    assert summary.portfolio_quantiles["p0"] == 0.0
-    assert summary.portfolio_quantiles["p100"] == 40.0
-    assert summary.spending_quantiles["p0"] == 10.0
-    assert summary.spending_quantiles["p100"] == 50.0
-    assert summary.fee_quantiles["p0"] == 1.0
-    assert summary.fee_quantiles["p100"] == 5.0
+    assert summary.total_runs == TOTAL_RUNS
+    assert summary.success_count == SUCCESS_COUNT
+    assert summary.failure_count == FAILURE_COUNT
+    assert summary.portfolio_quantiles["p0"] == PORTFOLIO_MIN
+    assert summary.portfolio_quantiles["p100"] == PORTFOLIO_MAX
+    assert summary.spending_quantiles["p0"] == SPENDING_MIN
+    assert summary.spending_quantiles["p100"] == SPENDING_MAX
+    assert summary.fee_quantiles["p0"] == FEE_MIN
+    assert summary.fee_quantiles["p100"] == FEE_MAX
 
 
 def test_quantile_indices_rounding() -> None:

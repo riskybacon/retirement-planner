@@ -11,9 +11,10 @@ DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "historical.csv"
 def load_historical_series() -> dict[int, tuple[float, float]]:
     """Read the historical returns CSV into a year-indexed mapping."""
     if not DATA_PATH.exists():
-        raise FileNotFoundError(
+        message = (
             f"Missing historical data at {DATA_PATH}. Run scripts/fetch_shiller.py first."
         )
+        raise FileNotFoundError(message)
 
     series = {}
     with DATA_PATH.open(newline="") as handle:
@@ -26,7 +27,8 @@ def load_historical_series() -> dict[int, tuple[float, float]]:
             )
 
     if not series:
-        raise ValueError("Historical series is empty; check data/historical.csv.")
+        message = "Historical series is empty; check data/historical.csv."
+        raise ValueError(message)
     return series
 
 

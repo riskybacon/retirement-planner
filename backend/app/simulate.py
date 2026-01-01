@@ -48,10 +48,11 @@ def simulate_one_start_year(
             target_rate = clamp(current_rate, req.withdrawal_rate_min, req.withdrawal_rate_max)
             target_withdrawal = portfolio * target_rate
             delta = target_withdrawal - withdrawal_amount
-            if delta >= 0:
-                smoothing = req.withdrawal_smoothing_up
-            else:
-                smoothing = req.withdrawal_smoothing_down
+            smoothing = (
+                req.withdrawal_smoothing_up
+                if delta >= 0
+                else req.withdrawal_smoothing_down
+            )
             withdrawal_amount = withdrawal_amount + smoothing * delta
 
         withdrawal = withdrawal_amount
