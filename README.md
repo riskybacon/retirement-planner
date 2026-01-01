@@ -28,6 +28,28 @@ I like the terminal style interface and may use this in some future projects.
 ## License
 Apache-2.0
 
+## Demo Capture
+1) Install Playwright and run the scripted demo (records a `.webm` video in `frontend/recordings`):
+```text
+cd frontend
+npm install -D playwright
+npx playwright install chromium
+npm run demo
+```
+
+2) Convert the `.webm` to a GIF:
+```text
+ffmpeg -i frontend/recordings/*.webm -vf "fps=12,scale=1200:-1:flags=lanczos" -c:v gif output.gif
+```
+
+3) Or run the demo and conversion in one step:
+```text
+cd frontend
+npm run demo:gif
+```
+
+![Demo](docs/demo.gif)
+
 ## Setup
 1) Create and activate the environment (from `INSTALL.md`):
 ```text

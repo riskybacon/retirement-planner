@@ -19,11 +19,12 @@
 - Prefer small, focused modules and avoid mixing unrelated responsibilities in one file.
 
 ## Testing Guidelines
-- No testing framework is configured yet.
-- When tests are introduced, document the framework, naming conventions, and how to run the test suite.
+- Backend tests use `pytest` in `backend/tests`.
+- Run tests with `pytest backend/tests`.
+- Keep tests focused on simulation and summary logic; API tests are currently out of scope.
 
 ## Commit & Pull Request Guidelines
-- There is no commit history yet to infer conventions.
+- Follow the commit message format in `CONTRIBUTING.md`.
 - Use short, imperative commit subjects (for example `Add environment setup notes`).
 - For pull requests, include a concise description, testing notes (or “not run”), and any required screenshots or logs.
 
