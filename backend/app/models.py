@@ -16,7 +16,7 @@ class SimulationInput(BaseModel):
     """Validated input parameters for a simulation run."""
 
     start_year: int = Field(ge=1900)
-    retirement_years: int = Field(gt=0, le=100)
+    retirement_years: int = Field(gt=0)
     portfolio_start: float = Field(gt=0)
     stock_allocation: float = Field(ge=0, le=1)
     bond_allocation: float = Field(ge=0, le=1)
@@ -74,3 +74,17 @@ class SimulationRun(TypedDict):
     yearly_withdrawals: list[float]
     yearly_fees: list[float]
     highlight: bool
+
+
+class AskRequest(BaseModel):
+    """Request payload for LLM explanations."""
+
+    question: str
+    inputs: dict[str, object]
+    summary: dict[str, object]
+
+
+class AskResponse(BaseModel):
+    """Response payload for LLM explanations."""
+
+    answer: str

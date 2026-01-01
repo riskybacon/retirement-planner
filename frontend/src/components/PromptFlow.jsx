@@ -186,6 +186,7 @@ export default function PromptFlow() {
   const [inputs, setInputs] = useState({});
   const [recipients, setRecipients] = useState([]);
   const [results, setResults] = useState(null);
+  const [latestRun, setLatestRun] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showQuantiles, setShowQuantiles] = useState(false);
   const bottomRef = useRef(null);
@@ -202,6 +203,71 @@ export default function PromptFlow() {
 
   const pushChart = (run) => {
     setOutputs((prev) => [...prev, { type: "chart", run }]);
+  };
+
+  const pushResponse = (response) => {
+    setOutputs((prev) => [...prev, { type: "response", ...response }]);
+  };
+
+  const parseStructuredAnswer = (answer) => {
+    if (typeof answer !== "string") {
+      return { format: "text", text: String(answer) };
+    }
+    const raw = answer.trim();
+    let normalized = raw;
+    const fenceMatch = raw.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+    if (fenceMatch) {
+      normalized = fenceMatch[1].trim();
+    }
+    if (normalized.toLowerCase().startsWith("json")) {
+      normalized = normalized.replace(/^json\s+/i, "");
+    }
+    try {
+      const parsed = JSON.parse(normalized);
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        typeof parsed.summary === "string" &&
+        Array.isArray(parsed.suggestions)
+      ) {
+        return {
+          format: "ai-json",
+          summary: parsed.summary,
+          suggestions: parsed.suggestions.filter((item) => typeof item === "string"),
+        };
+      }
+    } catch {
+      // fall through to plain text
+    }
+    return { format: "text", text: answer };
+  };
+
+  const askAssistant = async (question, inputsPayload, resultPayload) => {
+    if (!latestRun && !resultPayload) {
+      pushMessage("system", "Run a simulation before asking a question.");
+      return;
+    }
+    pushMessage("system", "Thinking...");
+    try {
+      const payload = {
+        question,
+        inputs: inputsPayload,
+        summary: resultPayload?.summary ?? latestRun?.results?.summary,
+      };
+      const response = await fetch("/api/v1/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const detail = await response.json();
+        throw new Error(formatApiError(detail));
+      }
+      const data = await response.json();
+      pushResponse(parseStructuredAnswer(data.answer));
+    } catch (error) {
+      pushMessage("system", error.message);
+    }
   };
 
   const advancePrompt = (nextSteps = steps) => {
@@ -238,8 +304,9 @@ export default function PromptFlow() {
       }
       const data = await response.json();
       setResults(data);
+      setLatestRun({ inputs: payload, results: data });
       pushChart({ inputs: payload, results: data });
-      pushMessage("system", "Simulation complete. Type 'edit <field> <value>' to adjust.");
+      pushMessage("system", "Simulation complete. Use /set to adjust or ask a question.");
     } catch (error) {
       pushMessage("system", error.message);
     } finally {
@@ -259,10 +326,10 @@ export default function PromptFlow() {
     if (results) {
       const parts = text.split(/\s+/);
       const command = parts[0]?.toLowerCase();
-      if (command === "edit") {
+      if (command === "/set") {
         const tokens = parts.slice(1);
         if (tokens.length < 2 || tokens.length % 2 !== 0) {
-          pushMessage("system", "Usage: edit <field> <value> [<field> <value> ...]");
+          pushMessage("system", "Usage: /set <field> <value> [<field> <value> ...]");
           pushMessage(
             "system",
             "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, fee, inflation."
@@ -274,7 +341,7 @@ export default function PromptFlow() {
           const field = normalizeField(tokens[i]);
           const value = tokens[i + 1];
           if (!field || value === undefined) {
-            pushMessage("system", "Usage: edit <field> <value> [<field> <value> ...]");
+            pushMessage("system", "Usage: /set <field> <value> [<field> <value> ...]");
             pushMessage(
               "system",
               "Fields: start, years, portfolio, stock, withdraw, min, max, smoothup, smoothdown, fee, inflation."
@@ -297,7 +364,16 @@ export default function PromptFlow() {
         await runSimulation(buildPayload(updatedInputs, recipients));
         return;
       }
-      pushMessage("system", "Unknown command. Try: edit <field> <value>");
+      if (command === "/help") {
+        pushMessage("system", "Commands: /set <field> <value> [<field> <value> ...]");
+        pushMessage("system", "Ask anything else without a leading '/'.");
+        return;
+      }
+      if (command && command.startsWith("/")) {
+        pushMessage("system", "Unknown command. Try: /set <field> <value>");
+        return;
+      }
+      await askAssistant(text, inputs, results);
       return;
     }
 
@@ -382,6 +458,32 @@ export default function PromptFlow() {
                 run={item.run}
                 showQuantiles={showQuantiles}
               />
+            );
+          }
+          if (item.type === "response") {
+            if (item.format === "ai-json") {
+              const lines = [
+                "Summary",
+                item.summary,
+                "Suggestions",
+                ...item.suggestions.map((suggestion) => `- ${suggestion}`),
+              ];
+              return (
+                <div key={`response-${index}`} className="response">
+                  {lines.map((line, lineIndex) => (
+                    <div key={`response-${index}-${lineIndex}`} className="line system">
+                      <span className="prompt">$</span>
+                      <span>{line}</span>
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+            return (
+              <div key={`response-${index}`} className="line system">
+                <span className="prompt">$</span>
+                <span>{item.text}</span>
+              </div>
             );
           }
           return (

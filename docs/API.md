@@ -97,3 +97,46 @@ Example response:
   "quantile_indices": [0, 7, 18, 29, 43, 51]
 }
 ```
+
+## POST /api/v1/ask
+Ask a question about the latest simulation summary and receive structured suggestions.
+
+Example request:
+```json
+{
+  "question": "Why did my success rate drop?",
+  "inputs": {
+    "start_year": 1985,
+    "retirement_years": 30,
+    "portfolio_start": 500000,
+    "stock_allocation": 0.6,
+    "bond_allocation": 0.4,
+    "withdrawal_rate_start": 0.038,
+    "withdrawal_rate_min": 0.03,
+    "withdrawal_rate_max": 0.055,
+    "withdrawal_smoothing_up": 0.3,
+    "withdrawal_smoothing_down": 1.0,
+    "management_fee": 0.005,
+    "inflation_rate": 0.025,
+    "ss_recipients": [
+      { "start_year": 2060, "monthly_amount": 1000 }
+    ]
+  },
+  "summary": {
+    "total_runs": 94,
+    "success_count": 77,
+    "failure_count": 17,
+    "success_rate": 0.82,
+    "portfolio_quantiles": { "p0": -150000, "p25": 200000, "p50": 800000, "p75": 1500000, "p100": 4200000 },
+    "spending_quantiles": { "p0": 900000, "p25": 1100000, "p50": 1350000, "p75": 1650000, "p100": 2300000 },
+    "fee_quantiles": { "p0": 80000, "p25": 110000, "p50": 135000, "p75": 165000, "p100": 210000 }
+  }
+}
+```
+
+Example response:
+```json
+{
+  "answer": "{\\\"summary\\\":\\\"Your success rate dropped due to higher withdrawals.\\\",\\\"suggestions\\\":[\\\"Lower the starting withdrawal rate to 3.5%\\\",\\\"Reduce management fee to 0.3%\\\"]}"
+}
+```

@@ -47,7 +47,7 @@ async function run() {
     }
   });
   await page.click('input[name="command"]');
-  await page.keyboard.type("edit withdraw 4.7 smoothup 20", {
+  await page.keyboard.type("/set withdraw 4.7 smoothup 20", {
     delay: randomDelay(30, 100),
   });
   await page.keyboard.press("Enter");

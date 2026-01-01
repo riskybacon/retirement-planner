@@ -3,7 +3,15 @@
 from fastapi import FastAPI, HTTPException
 
 from .data import load_historical_series, series_year_bounds
-from .models import PerStartYearResult, SimulationInput, SimulationResponse, SimulationRun
+from .llm import LLMError, ask_with_provider
+from .models import (
+    AskRequest,
+    AskResponse,
+    PerStartYearResult,
+    SimulationInput,
+    SimulationResponse,
+    SimulationRun,
+)
 from .simulate import simulate_one_start_year
 from .summary import compute_quantile_indices, summarize_results
 
@@ -59,3 +67,15 @@ def simulate(req: SimulationInput) -> SimulationResponse:
         summary=summary,
         quantile_indices=compute_quantile_indices(results),
     )
+
+
+@app.post("/api/v1/ask")
+def ask(request: AskRequest) -> AskResponse:
+    """Explain the latest simulation and provide improvement suggestions."""
+    try:
+        answer = ask_with_provider(request.question, request.inputs, request.summary)
+        return AskResponse(answer=answer)
+    except LLMError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail) from error
+    except RuntimeError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
