@@ -1,3 +1,5 @@
+"""FastAPI application entrypoints."""
+
 from fastapi import FastAPI, HTTPException
 
 from .data import load_historical_series, series_year_bounds
@@ -10,6 +12,7 @@ app = FastAPI()
 
 @app.get("/api/v1/series/metadata")
 def series_metadata() -> dict[str, int | str]:
+    """Return metadata about the historical series coverage."""
     series = load_historical_series()
     min_year, max_year = series_year_bounds(series)
     return {
@@ -22,6 +25,7 @@ def series_metadata() -> dict[str, int | str]:
 
 @app.post("/api/v1/simulate", response_model=SimulationResponse)
 def simulate(req: SimulationInput) -> SimulationResponse:
+    """Run rolling historical simulations based on the request payload."""
     if abs((req.stock_allocation + req.bond_allocation) - 1.0) > 0.001:
         raise HTTPException(status_code=400, detail="Allocations must sum to 1.0")
     if not (req.withdrawal_rate_min <= req.withdrawal_rate_start <= req.withdrawal_rate_max):

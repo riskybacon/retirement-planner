@@ -1,14 +1,20 @@
+"""Pydantic models and typed results for the simulation API."""
+
 from typing import TypedDict
 
 from pydantic import BaseModel, Field
 
 
 class SSRecipient(BaseModel):
+    """Social Security recipient configuration."""
+
     start_year: int = Field(ge=1900)
     monthly_amount: float = Field(ge=0)
 
 
 class SimulationInput(BaseModel):
+    """Validated input parameters for a simulation run."""
+
     start_year: int = Field(ge=1900)
     retirement_years: int = Field(gt=0, le=100)
     portfolio_start: float = Field(gt=0)
@@ -25,6 +31,8 @@ class SimulationInput(BaseModel):
 
 
 class PerStartYearResult(BaseModel):
+    """Simulation outcome for a single start year."""
+
     start_year: int
     success: bool
     ending_balance: float
@@ -35,6 +43,8 @@ class PerStartYearResult(BaseModel):
 
 
 class Summary(BaseModel):
+    """Aggregate summary statistics for a simulation batch."""
+
     total_runs: int
     success_count: int
     failure_count: int
@@ -46,6 +56,8 @@ class Summary(BaseModel):
 
 
 class SimulationResponse(BaseModel):
+    """Response envelope for a simulation request."""
+
     series: dict[str, int]
     results: list[PerStartYearResult]
     summary: Summary
@@ -53,6 +65,8 @@ class SimulationResponse(BaseModel):
 
 
 class SimulationRun(TypedDict):
+    """Typed dictionary for in-memory simulation results."""
+
     start_year: int
     success: bool
     ending_balance: float

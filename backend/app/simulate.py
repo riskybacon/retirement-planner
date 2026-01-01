@@ -1,7 +1,10 @@
+"""Simulation engine for retirement runs."""
+
 from .models import SimulationInput, SimulationRun
 
 
 def clamp(value: float, low: float, high: float) -> float:
+    """Clamp a value within the inclusive bounds."""
     return max(low, min(value, high))
 
 
@@ -10,6 +13,7 @@ def simulate_one_start_year(
     series: dict[int, tuple[float, float]],
     start_year: int,
 ) -> SimulationRun:
+    """Simulate a single rolling start year and return its results."""
     portfolio = req.portfolio_start
     withdrawal_rate = clamp(
         req.withdrawal_rate_start, req.withdrawal_rate_min, req.withdrawal_rate_max

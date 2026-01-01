@@ -1,3 +1,5 @@
+"""Load and validate historical return series."""
+
 import csv
 from functools import lru_cache
 from pathlib import Path
@@ -7,9 +9,10 @@ DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "historical.csv"
 
 @lru_cache(maxsize=1)
 def load_historical_series() -> dict[int, tuple[float, float]]:
+    """Read the historical returns CSV into a year-indexed mapping."""
     if not DATA_PATH.exists():
         raise FileNotFoundError(
-            f"Missing historical data at {DATA_PATH}. Run scripts/fetch_fred.py first."
+            f"Missing historical data at {DATA_PATH}. Run scripts/fetch_shiller.py first."
         )
 
     series = {}
@@ -28,5 +31,6 @@ def load_historical_series() -> dict[int, tuple[float, float]]:
 
 
 def series_year_bounds(series: dict[int, tuple[float, float]]) -> tuple[int, int]:
+    """Return the min and max year available in the series."""
     years = sorted(series.keys())
     return years[0], years[-1]

@@ -1,7 +1,9 @@
+"""Fetch and convert Shiller data into annual returns."""
+
 import io
 import os
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 from urllib.request import urlopen
 
 import pandas as pd
@@ -12,6 +14,7 @@ LOCAL_DEFAULT = Path(__file__).resolve().parents[1] / "data" / "ie_data.xls"
 
 
 def fetch_shiller_data(local_path: Path | None = None) -> pd.DataFrame:
+    """Load the Shiller dataset from a local file or the public URL."""
     if local_path and local_path.exists():
         return pd.read_excel(local_path, sheet_name="Data", skiprows=7)
 
@@ -27,12 +30,14 @@ def fetch_shiller_data(local_path: Path | None = None) -> pd.DataFrame:
 
 
 def normalize_columns(frame: pd.DataFrame) -> pd.DataFrame:
+    """Strip whitespace from column labels."""
     frame = frame.copy()
     frame.columns = [str(col).strip() for col in frame.columns]
     return frame
 
 
 def find_column(frame: pd.DataFrame, candidates: Iterable[str]) -> str:
+    """Find the first matching column name."""
     for candidate in candidates:
         if candidate in frame.columns:
             return candidate
@@ -40,6 +45,7 @@ def find_column(frame: pd.DataFrame, candidates: Iterable[str]) -> str:
 
 
 def parse_date_column(series: pd.Series) -> pd.Series:
+    """Parse the Shiller date column into a datetime index."""
     if pd.api.types.is_datetime64_any_dtype(series):
         return series
 
@@ -65,6 +71,7 @@ def parse_date_column(series: pd.Series) -> pd.Series:
 
 
 def build_annual_returns(frame: pd.DataFrame) -> pd.DataFrame:
+    """Compute annual stock and bond return series."""
     date_col = find_column(frame, ["Date", "date"])
     price_col = find_column(frame, ["P", "Price", "SP500"])
     bond_col = find_column(frame, ["Rate GS10", "GS10", "LT", "Long Interest Rate"])
@@ -90,6 +97,7 @@ def build_annual_returns(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def main() -> None:
+    """Entry point for building the historical returns CSV."""
     local_path = Path(os.environ.get("SHILLER_XLS_PATH", str(LOCAL_DEFAULT)))
     data = normalize_columns(fetch_shiller_data(local_path))
     if os.environ.get("SHILLER_SHOW_COLUMNS") == "1":

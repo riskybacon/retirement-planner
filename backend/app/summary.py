@@ -1,7 +1,10 @@
+"""Summary statistics and quantile index selection."""
+
 from .models import SimulationRun, Summary
 
 
 def percentile(values: list[float], p: float) -> float:
+    """Return the percentile for a list of numeric values."""
     if not values:
         return 0.0
     values = sorted(values)
@@ -20,6 +23,7 @@ def percentile(values: list[float], p: float) -> float:
 
 
 def summarize_results(results: list[SimulationRun]) -> Summary:
+    """Compute aggregate statistics for a set of simulations."""
     if not results:
         return Summary(
             total_runs=0,
@@ -71,6 +75,7 @@ def summarize_results(results: list[SimulationRun]) -> Summary:
 
 
 def compute_quantile_indices(results: list[SimulationRun]) -> list[int]:
+    """Compute indices for portfolio and withdrawl quantile runs."""
     if not results:
         return []
 
