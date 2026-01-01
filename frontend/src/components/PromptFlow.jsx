@@ -80,6 +80,84 @@ function toPercentAlways(value) {
   return parsed / 100;
 }
 
+function validateStep(step, value, inputs, recipients) {
+  if (step.id === "retirement_years" && value < 0) {
+    return "Retirement length must be zero or greater.";
+  }
+  if (step.id === "portfolio_start" && value <= 0) {
+    return "Portfolio balance must be greater than zero.";
+  }
+  if (step.id === "stock_allocation" && (value < 0 || value > 1)) {
+    return "Stock allocation must be between 0 and 100%.";
+  }
+  if (
+    ["withdrawal_rate_start", "withdrawal_rate_min", "withdrawal_rate_max"].includes(
+      step.id
+    ) &&
+    (value < 0 || value > 1)
+  ) {
+    return "Withdrawal rates must be between 0 and 100%.";
+  }
+  if (
+    ["withdrawal_smoothing_up", "withdrawal_smoothing_down"].includes(step.id) &&
+    (value < 0 || value > 1)
+  ) {
+    return "Smoothing must be between 0 and 100%.";
+  }
+  if (step.id === "management_fee" && (value < 0 || value > 1)) {
+    return "Management fee must be between 0 and 100%.";
+  }
+  if (step.id === "inflation_rate" && (value < 0 || value > 1)) {
+    return "Inflation rate must be between 0 and 100%.";
+  }
+  if (step.id === "withdrawal_rate_min") {
+    const maxRate = inputs.withdrawal_rate_max;
+    const startRate = inputs.withdrawal_rate_start;
+    if (maxRate !== undefined && value > maxRate) {
+      return "Minimum withdrawal rate cannot exceed maximum.";
+    }
+    if (startRate !== undefined && startRate < value) {
+      return "Minimum withdrawal rate cannot exceed starting rate.";
+    }
+  }
+  if (step.id === "withdrawal_rate_max") {
+    const minRate = inputs.withdrawal_rate_min;
+    const startRate = inputs.withdrawal_rate_start;
+    if (minRate !== undefined && value < minRate) {
+      return "Maximum withdrawal rate must be at least the minimum.";
+    }
+    if (startRate !== undefined && startRate > value) {
+      return "Maximum withdrawal rate must be at least the starting rate.";
+    }
+  }
+  if (step.id === "withdrawal_rate_start") {
+    const minRate = inputs.withdrawal_rate_min;
+    const maxRate = inputs.withdrawal_rate_max;
+    if (minRate !== undefined && value < minRate) {
+      return "Starting withdrawal rate must be at least the minimum.";
+    }
+    if (maxRate !== undefined && value > maxRate) {
+      return "Starting withdrawal rate must be at most the maximum.";
+    }
+  }
+  if (step.id === "ss_recipient_count" && (value < 0 || value > 3)) {
+    return "Social Security recipients must be between 0 and 3.";
+  }
+  if (step.recipientField === "monthly_amount" && value < 0) {
+    return "Social Security amount must be zero or greater.";
+  }
+  if (step.recipientField === "start_year") {
+    const retirementStart = inputs.start_year;
+    if (retirementStart !== undefined && value < retirementStart) {
+      return "Social Security start year must be on or after retirement start year.";
+    }
+    if (value < 0) {
+      return "Social Security start year must be zero or greater.";
+    }
+  }
+  return "";
+}
+
 function createRecipientSteps(count) {
   const steps = [];
   for (let i = 0; i < count; i += 1) {
@@ -230,6 +308,13 @@ export default function PromptFlow() {
     const parsedValue = step.parse(text);
     if (Number.isNaN(parsedValue)) {
       pushMessage("system", "Invalid input, try again.");
+      pushMessage("system", step.prompt);
+      return;
+    }
+
+    const validationError = validateStep(step, parsedValue, inputs, recipients);
+    if (validationError) {
+      pushMessage("system", validationError);
       pushMessage("system", step.prompt);
       return;
     }
