@@ -3,17 +3,17 @@ import { chromium } from "playwright";
 const url = process.env.DEMO_URL || "http://localhost:5173";
 
 const inputs = [
-  "2055",
-  "35",
+  "1985",
+  "30",
   "500000",
   "60",
-  "4",
-  "3",
-  "6",
-  "50",
+  "3.8",
+  "3.0",
+  "5.5",
+  "30",
   "100",
-  "1",
-  "3",
+  "0.5",
+  "2.5",
   "1",
   "2060",
   "1000",
@@ -22,10 +22,10 @@ const inputs = [
 async function run() {
   const browser = await chromium.launch({ headless: false, slowMo: 50 });
   const page = await browser.newPage({
-    viewport: { width: 1400, height: 900 },
+    viewport: { width: 1400, height: 1050 },
     recordVideo: {
       dir: "/tmp/retirement-planner",
-      size: { width: 1400, height: 900 },
+      size: { width: 1400, height: 1050 },
     },
   });
   await page.goto(url, { waitUntil: "networkidle" });

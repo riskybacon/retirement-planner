@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Bar,
   BarChart,
@@ -14,6 +15,10 @@ import {
 export default function Charts({ run, showQuantiles }) {
   const { results, inputs } = run;
   const series = filterSeries(results, showQuantiles);
+  const [showWithdrawlByYear, setShowWithdrawlByYear] = useState(false);
+  const [showPortfolioQuantiles, setShowPortfolioQuantiles] = useState(false);
+  const [showWithdrawlQuantiles, setShowWithdrawlQuantiles] = useState(false);
+  const [showFeeQuantiles, setShowFeeQuantiles] = useState(false);
   const maxYears = series.length
     ? series.reduce((max, item) => Math.max(max, item.yearly_balances.length), 0)
     : 0;
@@ -62,121 +67,169 @@ export default function Charts({ run, showQuantiles }) {
       </div>
 
       <div className="chart-card">
-        <h2>Withdrawl by Year</h2>
-        <p className="chart-meta">{formatInputs(inputs)}</p>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={spendingData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#233" />
-            <XAxis
-              dataKey="year"
-              stroke="#9fb"
-              tickFormatter={(value) => toYearLabel(value, inputs?.start_year)}
-            />
-            <YAxis
-              stroke="#9fb"
-              type="number"
-              domain={[spendingRange.min, spendingRange.max]}
-              tickFormatter={formatCompactCurrency}
-              ticks={spendingTicks}
-              width={90}
-            />
-            {series.map((item) => (
-              <Line
-                key={`spend-${item.start_year}`}
-                type="linear"
-                dataKey={seriesKey(item.start_year)}
-                stroke={item.highlight ? "#ffb347" : "rgba(143, 242, 200, 0.25)"}
-                strokeWidth={item.highlight ? 2 : 1}
-                dot={false}
-                isAnimationActive={false}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="chart-header">
+          <button
+            type="button"
+            className="chart-toggle"
+            onClick={() => setShowWithdrawlByYear((value) => !value)}
+            aria-expanded={showWithdrawlByYear}
+          >
+            <span className={`caret ${showWithdrawlByYear ? "open" : ""}`} />
+          </button>
+          <h2>Withdrawl by Year</h2>
+        </div>
+        {showWithdrawlByYear && (
+          <>
+            <p className="chart-meta">{formatInputs(inputs)}</p>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={spendingData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#233" />
+                <XAxis
+                  dataKey="year"
+                  stroke="#9fb"
+                  tickFormatter={(value) => toYearLabel(value, inputs?.start_year)}
+                />
+                <YAxis
+                  stroke="#9fb"
+                  type="number"
+                  domain={[spendingRange.min, spendingRange.max]}
+                  tickFormatter={formatCompactCurrency}
+                  ticks={spendingTicks}
+                  width={90}
+                />
+                {series.map((item) => (
+                  <Line
+                    key={`spend-${item.start_year}`}
+                    type="linear"
+                    dataKey={seriesKey(item.start_year)}
+                    stroke={item.highlight ? "#ffb347" : "rgba(143, 242, 200, 0.25)"}
+                    strokeWidth={item.highlight ? 2 : 1}
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </>
+        )}
       </div>
 
       <div className="chart-card">
-        <h2>Ending Portfolio Value Quantiles</h2>
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={toQuantileBars(results.summary.portfolio_quantiles)}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#233" />
-            <XAxis dataKey="name" stroke="#9fb" />
-            <YAxis
-              stroke="#9fb"
-              tickFormatter={formatCompactCurrency}
-              width={90}
-            />
-            <Bar dataKey="value" fill="#54e0a4" radius={[6, 6, 0, 0]}>
-              <LabelList
-                dataKey="value"
-                position="insideTop"
-                offset={12}
-                formatter={formatCompactCurrency}
-                fill="#0b1412"
+        <div className="chart-header">
+          <button
+            type="button"
+            className="chart-toggle"
+            onClick={() => setShowPortfolioQuantiles((value) => !value)}
+            aria-expanded={showPortfolioQuantiles}
+          >
+            <span className={`caret ${showPortfolioQuantiles ? "open" : ""}`} />
+          </button>
+          <h2>Ending Portfolio Value Quantiles</h2>
+        </div>
+        {showPortfolioQuantiles && (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={toQuantileBars(results.summary.portfolio_quantiles)}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#233" />
+              <XAxis dataKey="name" stroke="#9fb" />
+              <YAxis
+                stroke="#9fb"
+                tickFormatter={formatCompactCurrency}
+                width={90}
               />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+              <Bar dataKey="value" fill="#54e0a4" radius={[6, 6, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="insideTop"
+                  offset={12}
+                  formatter={formatCompactCurrency}
+                  fill="#0b1412"
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="chart-card">
-        <h2>Total Withdrawl Quantiles</h2>
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={toQuantileBars(results.summary.spending_quantiles)}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#233" />
-            <XAxis dataKey="name" stroke="#9fb" />
-            <YAxis
-              stroke="#9fb"
-              tickFormatter={formatCompactCurrency}
-              width={90}
-            />
-            <Bar dataKey="value" fill="#ffb347" radius={[6, 6, 0, 0]}>
-              <LabelList
-                dataKey="value"
-                position="insideTop"
-                offset={12}
-                formatter={formatCompactCurrency}
-                fill="#0b1412"
+        <div className="chart-header">
+          <button
+            type="button"
+            className="chart-toggle"
+            onClick={() => setShowWithdrawlQuantiles((value) => !value)}
+            aria-expanded={showWithdrawlQuantiles}
+          >
+            <span className={`caret ${showWithdrawlQuantiles ? "open" : ""}`} />
+          </button>
+          <h2>Total Withdrawl Quantiles</h2>
+        </div>
+        {showWithdrawlQuantiles && (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={toQuantileBars(results.summary.spending_quantiles)}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#233" />
+              <XAxis dataKey="name" stroke="#9fb" />
+              <YAxis
+                stroke="#9fb"
+                tickFormatter={formatCompactCurrency}
+                width={90}
               />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+              <Bar dataKey="value" fill="#ffb347" radius={[6, 6, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="insideTop"
+                  offset={12}
+                  formatter={formatCompactCurrency}
+                  fill="#0b1412"
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="chart-card">
-        <h2>Total Fee Quantiles</h2>
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={toQuantileBars(results.summary.fee_quantiles)}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#233" />
-            <XAxis dataKey="name" stroke="#9fb" />
-            <YAxis
-              stroke="#9fb"
-              tickFormatter={formatCompactCurrency}
-              width={90}
-            />
-            <Bar dataKey="value" fill="#7cc6ff" radius={[6, 6, 0, 0]}>
-              <LabelList
-                dataKey="value"
-                position="insideTop"
-                offset={12}
-                formatter={formatCompactCurrency}
-                fill="#0b1412"
+        <div className="chart-header">
+          <button
+            type="button"
+            className="chart-toggle"
+            onClick={() => setShowFeeQuantiles((value) => !value)}
+            aria-expanded={showFeeQuantiles}
+          >
+            <span className={`caret ${showFeeQuantiles ? "open" : ""}`} />
+          </button>
+          <h2>Total Fee Quantiles</h2>
+        </div>
+        {showFeeQuantiles && (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={toQuantileBars(results.summary.fee_quantiles)}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#233" />
+              <XAxis dataKey="name" stroke="#9fb" />
+              <YAxis
+                stroke="#9fb"
+                tickFormatter={formatCompactCurrency}
+                width={90}
               />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+              <Bar dataKey="value" fill="#7cc6ff" radius={[6, 6, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="insideTop"
+                  offset={12}
+                  formatter={formatCompactCurrency}
+                  fill="#0b1412"
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="chart-card">
         <h2>Summary</h2>
         <p className="chart-meta">{formatInputs(inputs)}</p>
-        <p>Withdrawal smoothing up: {formatPercent(inputs.withdrawal_smoothing_up)}</p>
-        <p>Withdrawal smoothing down: {formatPercent(inputs.withdrawal_smoothing_down)}</p>
-        <p>Simulations: {results.summary.total_runs}</p>
-        <p>Successes: {results.summary.success_count}</p>
-        <p>Failures: {results.summary.failure_count}</p>
-        <p>Success rate: {(results.summary.success_rate * 100).toFixed(1)}%</p>
-        <p>Start year range: {results.series.min_year} - {results.series.max_year}</p>
+        <p>
+          Runs: {results.summary.total_runs} | Successes: {results.summary.success_count} |
+          Failures: {results.summary.failure_count} | Success rate:{" "}
+          {(results.summary.success_rate * 100).toFixed(1)}%
+        </p>
       </div>
 
     </div>

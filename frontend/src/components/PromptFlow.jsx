@@ -50,7 +50,7 @@ const baseSteps = [
   {
     id: "management_fee",
     prompt: "Management fee %? (annual, after returns)",
-    parse: (value) => toPercent(value),
+    parse: (value) => toPercentAlways(value),
   },
   {
     id: "inflation_rate",
@@ -70,6 +70,14 @@ function toPercent(value) {
     return NaN;
   }
   return parsed > 1 ? parsed / 100 : parsed;
+}
+
+function toPercentAlways(value) {
+  const parsed = parseFloat(value);
+  if (Number.isNaN(parsed)) {
+    return NaN;
+  }
+  return parsed / 100;
 }
 
 function createRecipientSteps(count) {
@@ -377,6 +385,9 @@ function parseEditValue(field, value) {
   const intFields = new Set(["start_year", "retirement_years"]);
 
   if (percentFields.has(field)) {
+    if (field === "management_fee") {
+      return toPercentAlways(value);
+    }
     return toPercent(value);
   }
   if (intFields.has(field)) {
