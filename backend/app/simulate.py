@@ -15,9 +15,9 @@ def simulate_one_start_year(
         req.withdrawal_rate_start, req.withdrawal_rate_min, req.withdrawal_rate_max
     )
     withdrawal_amount = portfolio * withdrawal_rate
-    yearly_balances = [portfolio]
-    yearly_withdrawals = []
-    yearly_fees = []
+    yearly_balances: list[float] = [portfolio]
+    yearly_withdrawals: list[float] = []
+    yearly_fees: list[float] = []
     failed = portfolio <= 0
 
     for year_idx in range(req.retirement_years):
