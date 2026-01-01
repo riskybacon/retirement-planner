@@ -1,6 +1,6 @@
 """Pydantic models and typed results for the simulation API."""
 
-from typing import TypedDict
+from typing import Annotated, TypedDict
 
 from pydantic import BaseModel, Field
 
@@ -27,7 +27,7 @@ class SimulationInput(BaseModel):
     withdrawal_smoothing_down: float = Field(ge=0, le=1, default=1.0)
     management_fee: float = Field(ge=0, le=1.0, default=0.0)
     inflation_rate: float = Field(ge=0, le=0.2)
-    ss_recipients: list[SSRecipient] = Field(default_factory=list)
+    ss_recipients: Annotated[list[SSRecipient], Field(default_factory=list)]
 
 
 class PerStartYearResult(BaseModel):
