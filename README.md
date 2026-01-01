@@ -2,6 +2,24 @@
 
 A local, terminal-style web app for running historical retirement simulations with guardrail withdrawals and asset allocation inputs. The backend is FastAPI, the frontend is React + Recharts, and all data stays on your machine.
 
+Do not use this app to plan your retirement. It probably generates incorrect results. This project exists because I:
+
+1. have fun using [FIRECalc](https://www.firecalc.com) and [cFIRESim](https://cfiresim.com)
+2. thought it would be interesting to have a terminal-like hacker sorta interface for a retirement planner
+3. wanted play with [OpenAI](https://openai.com)'s [Codex](https://openai.com/codex/)
+
+Rules: Codex writes all the code. I write no code by hand.
+
+This doesn't mean I blindly accept all edits. I reviewed edits, asked codex to explain things I didn't understand, requested clarification, made suggestions if I wanted something different.
+
+I instructed codex to commit changes when I thought appropriate, and to craft commit messages.
+
+I'm pleased with the result. This is meant to be a proof-of-concept project, not a well-tested project that will reach maturity. The initial POC with very few features took about 3 hours, and only took that long because I paused to get coffee, and look out the window at the amusing squirrels carrying off persimmons from my tree during Christmas. Tweaking the project and adding additional features took another 4 hours, and then adding in ruff, mypy, and unit tests took another 3.
+
+This workflow was great for getting this going. The big time savings wasn't on the backend, but on the frontend. While I reviewed backend code, I'm not much of a frontend developer, so I vibe-coded the frontend.
+
+I like the terminal style interface and may use this in some future projects.
+
 ## Project Layout
 - `backend/`: FastAPI app, simulation engine, Shiller data fetch script.
 - `backend/data/`: generated historical returns (`historical.csv`).
