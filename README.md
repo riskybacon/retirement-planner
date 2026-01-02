@@ -17,18 +17,18 @@ This doesn't mean I blindly accept all edits. I reviewed edits, asked codex to e
 
 I instructed codex to commit changes when I thought appropriate, and to craft commit messages.
 
-I'm pleased with the result. This is meant to be a proof-of-concept project, not a well-tested project that will reach maturity. The initial POC with very few features took about 3 hours, and only took that long because I paused to get coffee, and look out the window at the amusing squirrels carrying off persimmons from my tree during Christmas. Tweaking the project and adding additional features took another 4 hours, and then adding in ruff, mypy, and unit tests took another 3.
+I'm pleased with the result. This is meant to be a proof-of-concept project, not a well-tested project that will reach maturity. The initial proof of concept with very few features took about 3 hours, and only took that long because I paused to get coffee, and look out the window at the amusing squirrels carrying off persimmons from my tree during Christmas. Tweaking the project and adding additional features took another 4 hours, and then adding in ruff, mypy, and unit tests took another 3.
 
 This workflow was great until it wasn't. The big time savings wasn't on the backend, but on the frontend. While I reviewed backend code, I'm not much of a frontend developer, so I vibe-coded the frontend and the demo. Those things would have taken me much longer to handle and I probably would have gotten bored and abandoned the project if I wasn't using codex.
 
 The workflow fell apart when:
 
-1. codex started making large changes for small features. Specifically, it looks like data validation is spread across many layers, in both the frontend and backend, which is a junior level coding pattern. Fixing this is a refactor. 
-  - This is exactly my experience with cursor and other agents. Things go great for a while, but then I need to scrutinize the code and use my right-brain to get the gestalt and show AI how to clean up tech debt, which means that almost all of the time savings are lost.
+1. codex started making large changes for small features. Specifically, it looks like data validation is spread across many layers, in both the frontend and backend, which is a junior level coding mistake. Fixing this is a refactor. 
+  - This is has been my experience with cursor and other agents. Things go great for a while, but then I need to scrutinize the code and use my right-brain to get the gestalt and show AI how to clean up tech debt, which means that almost all of the time savings are lost.
   - But I probably can use codex to help get the gestalt and help word my plan succinctly.
-2. codex somehow lost all read and write permissions mid-session and started asking me to cut-n-paste code in and would only give me diffs to apply manually. Which made the tool effectively ChatGPT. Useless. Restarting codex and losing the current context fixed the problem.
+2. codex somehow lost all read and write permissions mid-session and started asking me to cut-n-paste code in and would only give me diffs to apply manually. Which made the tool effectively ChatGPT. Restarting codex and losing the current context fixed the problem.
 
-That's not to say that it isn't a good tool. I loved using it, I loved that I didn't have to go and learn node.js and react via stackoverflow to get a decent proof of concept up and running.
+That's not to say that it isn't a good tool. I enjoyed using it, and I was glad that I didn't have to go and learn node.js and react via stackoverflow to get a decent proof of concept up and running.
 
 ## Project Layout
 - `backend/`: FastAPI app, simulation engine, Shiller data fetch script.
