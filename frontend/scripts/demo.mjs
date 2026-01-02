@@ -3,17 +3,17 @@ import { chromium } from "playwright";
 const url = process.env.DEMO_URL || "http://localhost:5173";
 
 const inputs = [
-  "1985",
-  "30",
+  "2060",
+  "35",
   "500000",
   "60",
-  "3.8",
-  "3.0",
-  "5.5",
-  "30",
+  "7.0",
+  "7.0",
+  "10.0",
   "100",
+  "0.9",
   "0.5",
-  "2.5",
+  "3.5",
   "1",
   "2060",
   "1000",
@@ -47,12 +47,17 @@ async function run() {
     }
   });
   await page.click('input[name="command"]');
-  await page.keyboard.type("/set withdraw 4.7 smoothup 20", {
+  await page.keyboard.type("Halp! I'm broke", {
+    delay: randomDelay(30, 100),
+  });
+  await page.keyboard.press("Enter");
+  await waitForResponse(page);
+  await page.keyboard.type("/set smoothdown 100", {
     delay: randomDelay(30, 100),
   });
   await page.keyboard.press("Enter");
 
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(5500);
   await browser.close();
 
   if (page.video()) {
@@ -74,4 +79,14 @@ async function maybeThinkPause() {
   if (Math.random() < 0.25) {
     await new Promise((resolve) => setTimeout(resolve, randomDelay(600, 1200)));
   }
+}
+
+async function waitForResponse(page) {
+  const responseCount = await page.evaluate(
+    () => document.querySelectorAll(".terminal-log .response").length
+  );
+  await page.waitForFunction(
+    (count) => document.querySelectorAll(".terminal-log .response").length > count,
+    responseCount
+  );
 }
